@@ -1,0 +1,803 @@
+{
+  "info": {
+    "name": "Gen1 Pokedex Backend API",
+    "description": "Complete REST API collection for Gen1 Pokedex application. Import this into Postman to test all endpoints including evolution and leveling systems.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register New Trainer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"trainer1\", \"password\": \"test123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Trainer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"trainer1\", \"password\": \"test123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pokemon - Public Endpoints",
+      "item": [
+        {
+          "name": "List All Pokemon (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons?page=0&size=20&sort=name,asc",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "20"},
+                {"key": "sort", "value": "name,asc"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pokemon by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Pokemon by Name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/name/pikachu",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "name", "pikachu"]
+            }
+          }
+        },
+        {
+          "name": "Get Pokemon by Pokedex Number",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/number/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "number", "25"]
+            }
+          }
+        },
+        {
+          "name": "Filter Pokemon by Type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/type/Fire",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "type", "Fire"]
+            }
+          }
+        },
+        {
+          "name": "Filter Pokemon by Habitat",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/habitat/Forest",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "habitat", "Forest"]
+            }
+          }
+        },
+        {
+          "name": "Filter Pokemon by Rarity",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/rarity/Legendary",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "rarity", "Legendary"]
+            }
+          }
+        },
+        {
+          "name": "Get Random Pokemon",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/random",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "random"]
+            }
+          }
+        },
+        {
+          "name": "Pokemon Search Suggestions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/suggestions?prefix=pi",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "suggestions"],
+              "query": [
+                {"key": "prefix", "value": "pi"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Advanced Pokemon Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/pokemons/search?name=bulba&type=Grass&rarity=Common&habitat=Grassland",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "pokemons", "search"],
+              "query": [
+                {"key": "name", "value": "bulba"},
+                {"key": "type", "value": "Grass"},
+                {"key": "rarity", "value": "Common"},
+                {"key": "habitat", "value": "Grassland"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Collection (Auth Required)",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"trainer@example.com\", \"bio\": \"Pokemon Master in training\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Catch Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/catch/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "catch", "25"]
+            }
+          }
+        },
+        {
+          "name": "Get Collection",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/collection",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "collection"]
+            }
+          }
+        },
+        {
+          "name": "Release Pokemon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/release/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "release", "25"]
+            }
+          }
+        },
+        {
+          "name": "Mark as Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/favorite/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "favorite", "25"]
+            }
+          }
+        },
+        {
+          "name": "Remove Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/favorite/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "favorite", "25"]
+            }
+          }
+        },
+        {
+          "name": "Get Badges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/badges",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "badges"]
+            }
+          }
+        },
+        {
+          "name": "Level Up Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"experienceGain\": 50}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/level-up/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "level-up", "25"]
+            }
+          }
+        },
+        {
+          "name": "Get Pokemon Level",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/pokemon-level/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "pokemon-level", "25"]
+            }
+          }
+        },
+        {
+          "name": "Evolve Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/users/trainer1/evolve/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "trainer1", "evolve", "25"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gamification",
+      "item": [
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/users/leaderboard",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "leaderboard"]
+            }
+          }
+        },
+        {
+          "name": "Get Random User",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/api/users/random",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "users", "random"]
+            }
+          }
+        },
+        {
+          "name": "Get Daily Challenge Today",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/daily-challenge/today",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "daily-challenge", "today"]
+            }
+          }
+        },
+        {
+          "name": "Claim Daily Challenge Reward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/daily-challenge/trainer1/claim",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "daily-challenge", "trainer1", "claim"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Battle System",
+      "item": [
+        {
+          "name": "Simulate Battle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pokemon1Id\": 25, \"pokemon2Id\": 4}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/battle/simulate",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "battle", "simulate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Pokemon Management",
+      "item": [
+        {
+          "name": "Add New Pokemon",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pokedexNumber\": 150, \"name\": \"Mewtwo\", \"height\": 2.0, \"weight\": 122.0, \"description\": \"Created by a scientist\", \"hp\": 106, \"attack\": 110, \"defense\": 90, \"speed\": 130, \"specialAttack\": 154, \"specialDefense\": 90, \"habitat\": \"Cave\", \"region\": \"Kanto\", \"rarity\": \"Legendary\", \"spriteUrl\": \"https://example.com/mewtwo.png\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/pokemons",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "pokemons"]
+            }
+          }
+        },
+        {
+          "name": "Update Pokemon",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Pikachu Updated\", \"hp\": 35}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/admin/pokemons/25",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "pokemons", "25"]
+            }
+          }
+        },
+        {
+          "name": "Delete Pokemon",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/pokemons/150",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "pokemons", "150"]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/audit-logs",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "audit-logs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - User Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1"]
+            }
+          }
+        },
+        {
+          "name": "Ban User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/ban?reason=Violating Terms of Service",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "ban"],
+              "query": [
+                {"key": "reason", "value": "Violating Terms of Service"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suspend User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/suspend?reason=Inappropriate behavior",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "suspend"],
+              "query": [
+                {"key": "reason", "value": "Inappropriate behavior"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reactivate User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/reactivate",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "reactivate"]
+            }
+          }
+        },
+        {
+          "name": "Reset User Collection",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/collection",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "collection"]
+            }
+          }
+        },
+        {
+          "name": "Reset User Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/reset-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Update User Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer ADMIN_JWT_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/api/admin/users/trainer1/status?newStatus=ACTIVE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "admin", "users", "trainer1", "status"],
+              "query": [
+                {"key": "newStatus", "value": "ACTIVE"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
