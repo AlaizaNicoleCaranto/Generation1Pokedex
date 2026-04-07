@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
         // Enforce minimum password length for security
         if (password == null || password.length() < 6) {
-        throw new IllegalArgumentException("Password must be at least 6 characters!");
+            throw new IllegalArgumentException("Password must be at least 6 characters!");
         }
 
         // Check if username is already taken
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(user);
         achievementService.checkAndAwardBadges(username);
 
-        return mapToProfile(updatedUser);
+        return mapToProfile(updatedUser); // Return updated profile with new Pokemon count
     }
 
     /**
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
         user.getFavorites().remove(pokemon);
         User savedUser = userRepository.save(user);
 
-        return mapToProfile(savedUser);
+        return mapToProfile(savedUser); // Return updated profile with reduced Pokemon count
     }
 
     /**
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Set<Pokemon> getCollection(String username) {
         User user = getUserByUsername(username);
-        return user.getPokemons();
+        return user.getPokemons(); // Return the set of Pokemon caught by the user
     }
 
     /**
@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Set<Pokemon> getFavorites(String username) {
         User user = getUserByUsername(username);
-        return user.getFavorites();
+        return user.getFavorites(); // Return the set of Pokemon marked as favorites by the user
     }
 
     /**
@@ -208,7 +208,7 @@ public class UserServiceImpl implements UserService {
 
         user.getFavorites().add(pokemon);
         User savedUser = userRepository.save(user);
-        return mapToProfile(savedUser);
+        return mapToProfile(savedUser); // Return updated profile with increased favorite count
     }
 
     /**
