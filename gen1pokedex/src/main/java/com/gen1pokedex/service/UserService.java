@@ -23,10 +23,11 @@ public interface UserService {
      * 
      * @param username Unique trainer name chosen by user
      * @param password Plain text password (will be encrypted before storage)
+     * @param email Optional email address for account recovery and notifications
      * @return UserProfileDTO containing user details and starter Pokemon
      * @throws com.gen1pokedex.exception.DuplicateResourceException if username already exists
      */
-    UserProfileDTO registerUser(String username, String password);
+    UserProfileDTO registerUser(String username, String password, String email);
 
     /**
      * Load a User entity by username from the database.

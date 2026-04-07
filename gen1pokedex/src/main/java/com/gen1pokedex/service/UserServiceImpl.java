@@ -19,6 +19,7 @@ import com.gen1pokedex.repository.UserRepo;
 
 // Import Spring framework annotations and utilities
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,16 +61,27 @@ public class UserServiceImpl implements UserService {
      * @throws DuplicateResourceException if username already exists
      */
     @Override
-    public UserProfileDTO registerUser(String username, String password) {
+    public UserProfileDTO registerUser(String username, String password, String email) {
+        // Validate input
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be empty!");
+        }
+
+        // Enforce minimum password length for security
+        if (password == null || password.length() < 6) {
+        throw new IllegalArgumentException("Password must be at least 6 characters!");
+        }
+
         // Check if username is already taken
         if (userRepository.existsByUsername(username)) {
-            throw new DuplicateResourceException("Username already exists");
+            throw new DuplicateResourceException("Username already exists!");
         }
 
         // Create new user entity
         User user = new User();
         user.setUsername(username);
         user.setPassword(encoder.encode(password));
+        user.setEmail(email);
         user.setRole("USER");
 
         // Array of starter Pokemon IDs (Gen1 only)
@@ -116,6 +128,7 @@ public class UserServiceImpl implements UserService {
      * @return Updated user profile
      */
     @Override
+    @Transactional
     public UserProfileDTO catchPokemon(String username, Long pokemonId) {
         User user = getUserByUsername(username);
         Pokemon pokemon = pokemonRepository.findById(pokemonId)
@@ -137,6 +150,7 @@ public class UserServiceImpl implements UserService {
      * @return Updated user profile
      */
     @Override
+    @Transactional
     public UserProfileDTO releasePokemon(String username, Long pokemonId) {
         User user = getUserByUsername(username);
         Pokemon pokemon = pokemonRepository.findById(pokemonId)
@@ -182,6 +196,7 @@ public class UserServiceImpl implements UserService {
      * @throws RuntimeException if Pokemon not in collection
      */
     @Override
+    @Transactional
     public UserProfileDTO addFavorite(String username, Long userPokemonId) {
         User user = getUserByUsername(username);
         Pokemon pokemon = pokemonRepository.findById(userPokemonId)
@@ -204,6 +219,7 @@ public class UserServiceImpl implements UserService {
      * @return Updated user profile
      */
     @Override
+    @Transactional
     public UserProfileDTO removeFavorite(String username, Long userPokemonId) {
         User user = getUserByUsername(username);
         Pokemon pokemon = pokemonRepository.findById(userPokemonId)
@@ -249,6 +265,7 @@ public class UserServiceImpl implements UserService {
      * @return Updated user profile
      */
     @Override
+    @Transactional
     public UserProfileDTO updateUserProfile(String username, String email, String bio) {
         User user = getUserByUsername(username);
 

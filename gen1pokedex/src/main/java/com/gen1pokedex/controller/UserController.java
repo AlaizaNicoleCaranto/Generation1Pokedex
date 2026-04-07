@@ -23,7 +23,7 @@ public class UserController {
     // Register new user with JSON request body
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public UserProfileDTO register(@RequestBody AuthRequest authRequest) {
-        return userService.registerUser(authRequest.getUsername(), authRequest.getPassword());
+        return userService.registerUser(authRequest.getUsername(), authRequest.getPassword(), authRequest.getEmail());
     }
 
     // Get user profile with progress

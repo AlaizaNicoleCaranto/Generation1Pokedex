@@ -38,7 +38,7 @@ public class Pokemon {
     private int specialAttack; // special attack stat
     private int specialDefense; // special defense stat
 
-    @ManyToMany
+    @ManyToMany // POkemon can have multiple types
     @JoinTable(name = "pokemon_types", joinColumns = @JoinColumn(name = "pokemon_id"), inverseJoinColumns = @JoinColumn(name = "type_id"))
     private Set<Type> types = new HashSet<>(); // Pokémon type relationships
 
@@ -60,7 +60,7 @@ public class Pokemon {
         return String.format("%03d", this.pokedexNumber);
     }
 
-    // GETTERS AND SETTERS
+    // GETTERS AND SETTERS - ENCAPSULATION 
     public Long getId() {
         return id;
     }

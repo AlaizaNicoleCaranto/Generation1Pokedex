@@ -8,6 +8,8 @@ import com.gen1pokedex.repository.UserRepo; // user data persistence access
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // password hashing
 import org.springframework.stereotype.Service; // marks as service component
+import org.springframework.transaction.annotation.Transactional; // manages transactions for data integrity
+
 import java.time.LocalDateTime; // timestamp tracking
 import java.util.List; // collections for lists
 import java.util.Random; // random password generation
@@ -75,6 +77,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
+    @Transactional
     public UserProfileDTO banUser(String username, String reason) {
         // Find user to ban
         User user = userRepository.findByUsername(username)
@@ -103,6 +106,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
+    @Transactional
     public UserProfileDTO suspendUser(String username, String reason) {
         // Find user to suspend
         User user = userRepository.findByUsername(username)
@@ -157,6 +161,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
+    @Transactional
     public UserProfileDTO resetUserCollection(String username) {
         // Find user whose collection will be reset
         User user = userRepository.findByUsername(username)
