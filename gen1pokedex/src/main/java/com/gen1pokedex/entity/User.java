@@ -38,11 +38,13 @@ public class User {
         // timestamp of most recent successful login
         private LocalDateTime lastLogin; // tracks when user last accessed the app
 
+        //TODO:Edit out
         // personal collection of caught Pokémon
         @ManyToMany
         @JoinTable(name = "user_pokemons", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "pokemon_id"))
         private Set<Pokemon> pokemons = new HashSet<>(); // Pokémon in trainer's collection
 
+        //TODO:Edit out
         // favorite Pokémon
         @ManyToMany
         @JoinTable(name = "user_favorites", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "pokemon_id"))

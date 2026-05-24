@@ -7,6 +7,7 @@ import com.gen1pokedex.dto.UserProfileDTO;
 import com.gen1pokedex.entity.Badge;
 import com.gen1pokedex.entity.Pokemon;
 import com.gen1pokedex.entity.User;
+import com.gen1pokedex.entity.PokemonLevel;
 
 // Import custom exceptions for error handling
 import com.gen1pokedex.exception.PokemonNotFoundException;
@@ -16,6 +17,7 @@ import com.gen1pokedex.exception.UserNotFoundException;
 // Import repositories for database access
 import com.gen1pokedex.repository.PokemonRepo;
 import com.gen1pokedex.repository.UserRepo;
+import com.gen1pokedex.repository.PokemonLevelRepo;
 
 // Import Spring framework annotations and utilities
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +26,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 // Import Java utilities
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Service implementation for user-related operations.
- * Handles registration, Pokemon catching, favorites, and profile management.
+ * Handles registration, Pokemon catching, favorites, profile management,
+ * and the leveling/evolution system.
  */
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,6 +49,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PokemonRepo pokemonRepository;
 
+    // Repository for tracking Pokemon levels and XP
+    @Autowired
+    private PokemonLevelRepo pokemonLevelRepository;
+
     // Password encoder for secure password storage (BCrypt hashing)
     @Autowired
     private BCryptPasswordEncoder encoder;
@@ -54,11 +63,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Register a new user with a random starter Pokemon.
-     * 
-     * @param username Unique trainer name
-     * @param password Plain text password (will be encrypted)
-     * @return UserProfileDTO with user details and starter Pokemon
-     * @throws DuplicateResourceException if username already exists
      */
     @Override
     public UserProfileDTO registerUser(String username, String password, String email) {
@@ -83,8 +87,9 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encoder.encode(password));
         user.setEmail(email);
         user.setRole("USER");
+        user.setCreatedAt(LocalDateTime.now());
 
-        // Array of starter Pokemon IDs (Gen1 only)
+        // Array of starter Pokemon IDs (Gen1 only) - 9 options for variety
         int[] starters = { 1, 4, 7, 25, 54, 63, 66, 74, 133 };
 
         // Select random starter from the array
@@ -100,19 +105,24 @@ public class UserServiceImpl implements UserService {
         // Save user to database
         User savedUser = userRepository.save(user);
 
+        // Create level tracking record for starter Pokemon
+        PokemonLevel level = new PokemonLevel();
+        level.setUsername(username);
+        level.setPokemonId(starter.getId());
+        level.setLevel(1);
+        level.setExperience(0);
+        level.setLastUpdated(LocalDateTime.now());
+        pokemonLevelRepository.save(level);
+
         // Check and award any badges the user qualifies for
         achievementService.checkAndAwardBadges(savedUser.getUsername());
 
-        // Return user profile DTO (safe for frontend, no password)
+        // Return user profile DTO
         return mapToProfile(savedUser);
     }
 
     /**
      * Find a user by their username.
-     * 
-     * @param username Trainer name to search for
-     * @return User entity
-     * @throws UserNotFoundException if user does not exist
      */
     @Override
     public User getUserByUsername(String username) {
@@ -122,10 +132,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Add a Pokemon to the user's collection.
-     * 
-     * @param username  Trainer who caught the Pokemon
-     * @param pokemonId ID of the Pokemon to catch
-     * @return Updated user profile
      */
     @Override
     @Transactional
@@ -134,20 +140,31 @@ public class UserServiceImpl implements UserService {
         Pokemon pokemon = pokemonRepository.findById(pokemonId)
                 .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
 
+        // Check if already caught (prevent duplicates)
+        if (user.getPokemons().contains(pokemon)) {
+            throw new RuntimeException("You already caught this Pokémon!");
+        }
+
+        // Add Pokemon to collection
         user.getPokemons().add(pokemon);
+
+        // Create level tracking record for the caught Pokemon
+        PokemonLevel level = new PokemonLevel();
+        level.setUsername(username);
+        level.setPokemonId(pokemon.getId());
+        level.setLevel(1);
+        level.setExperience(0);
+        level.setLastUpdated(LocalDateTime.now());
+        pokemonLevelRepository.save(level);
+
         User updatedUser = userRepository.save(user);
         achievementService.checkAndAwardBadges(username);
 
-        return mapToProfile(updatedUser); // Return updated profile with new Pokemon count
+        return mapToProfile(updatedUser);
     }
 
     /**
      * Remove a Pokemon from the user's collection.
-     * Also removes from favorites if present.
-     * 
-     * @param username  Trainer releasing the Pokemon
-     * @param pokemonId ID of the Pokemon to release
-     * @return Updated user profile
      */
     @Override
     @Transactional
@@ -156,44 +173,39 @@ public class UserServiceImpl implements UserService {
         Pokemon pokemon = pokemonRepository.findById(pokemonId)
                 .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
 
+        // Remove from collection
         user.getPokemons().remove(pokemon);
         user.getFavorites().remove(pokemon);
+
+        // Delete level tracking record
+        pokemonLevelRepository.findByUsernameAndPokemonId(username, pokemonId)
+                .ifPresent(pokemonLevelRepository::delete);
+
         User savedUser = userRepository.save(user);
 
-        return mapToProfile(savedUser); // Return updated profile with reduced Pokemon count
+        return mapToProfile(savedUser);
     }
 
     /**
      * Get all Pokemon caught by the user.
-     * 
-     * @param username Trainer name
-     * @return Set of Pokemon in user's collection
      */
     @Override
     public Set<Pokemon> getCollection(String username) {
         User user = getUserByUsername(username);
-        return user.getPokemons(); // Return the set of Pokemon caught by the user
+        return user.getPokemons();
     }
 
     /**
      * Get all Pokemon marked as favorite by the user.
-     * 
-     * @param username Trainer name
-     * @return Set of favorite Pokemon
      */
     @Override
     public Set<Pokemon> getFavorites(String username) {
         User user = getUserByUsername(username);
-        return user.getFavorites(); // Return the set of Pokemon marked as favorites by the user
+        return user.getFavorites();
     }
 
     /**
      * Mark a caught Pokemon as favorite.
-     * 
-     * @param username      Trainer name
-     * @param userPokemonId ID of the Pokemon to favorite
-     * @return Updated user profile
-     * @throws RuntimeException if Pokemon not in collection
      */
     @Override
     @Transactional
@@ -208,15 +220,11 @@ public class UserServiceImpl implements UserService {
 
         user.getFavorites().add(pokemon);
         User savedUser = userRepository.save(user);
-        return mapToProfile(savedUser); // Return updated profile with increased favorite count
+        return mapToProfile(savedUser);
     }
 
     /**
      * Remove a Pokemon from favorites.
-     * 
-     * @param username      Trainer name
-     * @param userPokemonId ID of the Pokemon to unfavorite
-     * @return Updated user profile
      */
     @Override
     @Transactional
@@ -232,9 +240,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get user profile with all stats and badges.
-     * 
-     * @param username Trainer name
-     * @return UserProfileDTO with complete profile data
      */
     @Override
     public UserProfileDTO getUserProfile(String username) {
@@ -244,8 +249,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get top 10 users sorted by number of Pokemon caught.
-     * 
-     * @return List of top 10 user profiles
      */
     @Override
     public List<UserProfileDTO> getLeaderboard() {
@@ -258,11 +261,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Update user's email and/or bio.
-     * 
-     * @param username Trainer name
-     * @param email    New email address (can be null)
-     * @param bio      New biography text (can be null)
-     * @return Updated user profile
      */
     @Override
     @Transactional
@@ -275,6 +273,7 @@ public class UserServiceImpl implements UserService {
         if (bio != null) {
             user.setBio(bio);
         }
+        user.setUpdatedAt(LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
         return mapToProfile(savedUser);
@@ -282,9 +281,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get all badges earned by the user.
-     * 
-     * @param username Trainer name
-     * @return List of badges
      */
     @Override
     public List<Badge> getUserBadges(String username) {
@@ -292,10 +288,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Get a random user profile (for discovery feature).
-     * 
-     * @return Random user profile
-     * @throws RuntimeException if no users exist
+     * Get a random user profile.
      */
     @Override
     public UserProfileDTO getRandomUser() {
@@ -308,10 +301,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Calculate Pokedex completion percentage.
-     * Formula: (caught count / 151) * 100
-     * 
-     * @param username Trainer name
-     * @return Completion percentage (0.0 to 100.0)
      */
     @Override
     public double getCompletionPercentage(String username) {
@@ -321,57 +310,99 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Level up a Pokemon.
-     * Adds experience points to a Pokemon in user's collection.
-     * 
-     * @param username       Trainer name
-     * @param pokemonId      ID of the Pokemon to level up
-     * @param experienceGain Amount of XP to add
-     * @return Updated user profile
+     * Level up a Pokemon - Saves level to database.
      */
     @Override
     public UserProfileDTO levelUpPokemon(String username, Long pokemonId, int experienceGain) {
-        User user = getUserByUsername(username);
-        Pokemon pokemon = pokemonRepository.findById(pokemonId)
-                .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
+        try {
+            User user = getUserByUsername(username);
+            Pokemon pokemon = pokemonRepository.findById(pokemonId)
+                    .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
 
-        if (!user.getPokemons().contains(pokemon)) {
-            throw new RuntimeException("Pokemon not found in your collection");
+            if (!user.getPokemons().contains(pokemon)) {
+                throw new RuntimeException("Pokemon not found in your collection");
+            }
+
+            // Get existing level data or create new record
+            PokemonLevel level = pokemonLevelRepository.findByUsernameAndPokemonId(username, pokemonId)
+                    .orElse(new PokemonLevel());
+
+            if (level.getId() == null) {
+                level.setUsername(username);
+                level.setPokemonId(pokemonId);
+                level.setLevel(1);
+                level.setExperience(0);
+                level.setLastUpdated(LocalDateTime.now());
+            }
+
+            // Add experience and calculate new level (100 XP per level)
+            int newExp = level.getExperience() + experienceGain;
+            int newLevel = level.getLevel();
+
+            // Level up loop - removed unused levelsGained variable
+            while (newExp >= 100) {
+                newExp -= 100;
+                newLevel++;
+            }
+
+            level.setExperience(newExp);
+            level.setLevel(newLevel);
+            level.setLastUpdated(LocalDateTime.now());
+
+            pokemonLevelRepository.save(level);
+
+            // Log level up message
+            System.out.println("✅ " + username + "'s " + pokemon.getName() +
+                    " gained " + experienceGain + " XP! " +
+                    "Now Level " + newLevel + " (" + newExp + "/100 XP)");
+
+            return mapToProfile(user);
+        } catch (Exception e) {
+            System.err.println("Error in levelUpPokemon: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to level up Pokemon: " + e.getMessage());
         }
-
-        System.out.println("Pokemon " + pokemon.getName() + " gained " + experienceGain + " experience!");
-
-        return mapToProfile(user);
     }
 
     /**
-     * Get Pokemon level.
-     * Returns the current level of a specific Pokemon.
-     * 
-     * @param username  Trainer name
-     * @param pokemonId ID of the Pokemon
-     * @return Current level (default: 1)
+     * Get Pokemon level from database.
+     * FIXED: Added better null handling and auto-create missing records
      */
     @Override
     public int getPokemonLevel(String username, Long pokemonId) {
-        User user = getUserByUsername(username);
-        Pokemon pokemon = pokemonRepository.findById(pokemonId)
-                .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
+        try {
+            User user = getUserByUsername(username);
+            Pokemon pokemon = pokemonRepository.findById(pokemonId)
+                    .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
 
-        if (!user.getPokemons().contains(pokemon)) {
-            throw new RuntimeException("Pokemon not found in your collection");
+            if (!user.getPokemons().contains(pokemon)) {
+                throw new RuntimeException("Pokemon not found in your collection");
+            }
+
+            // Return actual level from database, default to 1
+            Optional<PokemonLevel> levelOpt = pokemonLevelRepository.findByUsernameAndPokemonId(username, pokemonId);
+            if (levelOpt.isPresent()) {
+                return levelOpt.get().getLevel();
+            } else {
+                // Create a default level record if not exists
+                PokemonLevel newLevel = new PokemonLevel();
+                newLevel.setUsername(username);
+                newLevel.setPokemonId(pokemonId);
+                newLevel.setLevel(1);
+                newLevel.setExperience(0);
+                newLevel.setLastUpdated(LocalDateTime.now());
+                pokemonLevelRepository.save(newLevel);
+                return 1;
+            }
+        } catch (Exception e) {
+            System.err.println("Error in getPokemonLevel: " + e.getMessage());
+            e.printStackTrace();
+            return 1; // Default to level 1 on error
         }
-
-        return 1;
     }
 
     /**
-     * Evolve Pokemon.
-     * Checks evolution requirements and evolves if conditions are met.
-     * 
-     * @param username  Trainer name
-     * @param pokemonId ID of the Pokemon to evolve
-     * @return Updated user profile
+     * Evolve Pokemon - preserves level data.
      */
     @Override
     public UserProfileDTO evolvePokemon(String username, Long pokemonId) {
@@ -387,26 +418,42 @@ public class UserServiceImpl implements UserService {
         Pokemon evolvedForm = getEvolvedForm(currentPokemon, currentLevel);
 
         if (evolvedForm != null) {
+            // Get level data before removal
+            PokemonLevel oldLevel = pokemonLevelRepository.findByUsernameAndPokemonId(username, pokemonId).orElse(null);
+
+            // Remove current Pokemon
             user.getPokemons().remove(currentPokemon);
+            user.getFavorites().remove(currentPokemon);
+
+            // Add evolved Pokemon
             user.getPokemons().add(evolvedForm);
+
+            // Transfer level data to evolved Pokemon
+            if (oldLevel != null) {
+                pokemonLevelRepository.delete(oldLevel);
+
+                PokemonLevel newLevel = new PokemonLevel();
+                newLevel.setUsername(username);
+                newLevel.setPokemonId(evolvedForm.getId());
+                newLevel.setLevel(oldLevel.getLevel());
+                newLevel.setExperience(oldLevel.getExperience());
+                newLevel.setLastUpdated(LocalDateTime.now());
+                pokemonLevelRepository.save(newLevel);
+            }
+
             userRepository.save(user);
 
-            System.out.println("Congratulations! Your " + currentPokemon.getName() +
+            System.out.println("✨ " + username + "'s " + currentPokemon.getName() +
                     " evolved into " + evolvedForm.getName() + "!");
         } else {
-            System.out.println(currentPokemon.getName() + " cannot evolve at level " + currentLevel);
+            System.out.println("⚠️ " + currentPokemon.getName() + " cannot evolve at level " + currentLevel);
         }
 
         return mapToProfile(user);
     }
 
     /**
-     * Helper method to determine if a Pokemon can evolve at a given level.
-     * Contains evolution requirements for Gen1 Pokemon.
-     * 
-     * @param pokemon Current Pokemon
-     * @param level   Current level of the Pokemon
-     * @return Evolved Pokemon or null if no evolution available
+     * Helper method to determine if a Pokemon can evolve.
      */
     private Pokemon getEvolvedForm(Pokemon pokemon, int level) {
         String pokemonName = pokemon.getName();
@@ -476,11 +523,7 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Convert User entity to UserProfileDTO for safe frontend consumption.
-     * Excludes sensitive data like password.
-     * 
-     * @param user User entity from database
-     * @return UserProfileDTO with safe profile data
+     * Convert User entity to UserProfileDTO.
      */
     private UserProfileDTO mapToProfile(User user) {
         UserProfileDTO profile = new UserProfileDTO();

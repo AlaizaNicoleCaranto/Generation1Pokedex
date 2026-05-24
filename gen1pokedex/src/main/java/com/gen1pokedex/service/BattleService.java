@@ -5,8 +5,7 @@ import com.gen1pokedex.dto.BattleResult;
 
 // Import Pokemon entity for accessing Pokemon data
 import com.gen1pokedex.entity.Pokemon;
-
-// Import Type entity for type effectiveness calculations
+import com.gen1pokedex.entity.PokemonLevel;
 import com.gen1pokedex.entity.Type;
 
 // Import custom exception for when Pokemon is not found
@@ -14,6 +13,7 @@ import com.gen1pokedex.exception.PokemonNotFoundException;
 
 // Import Pokemon repository for database access
 import com.gen1pokedex.repository.PokemonRepo;
+import com.gen1pokedex.repository.PokemonLevelRepo;
 
 // Import Spring annotations for dependency injection
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,10 @@ import java.util.Map;
 // Import Random for adding randomness to damage calculations
 import java.util.Random;
 
+// Import Security for getting current logged in user
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+
 // Service class that handles Pokemon battle simulation logic
 @Service
 public class BattleService {
@@ -33,6 +37,10 @@ public class BattleService {
     // Repository for accessing Pokemon data from database
     @Autowired
     private PokemonRepo pokemonRepository;
+
+    // Repository for tracking Pokemon levels and XP
+    @Autowired
+    private PokemonLevelRepo pokemonLevelRepository;
 
     // Type effectiveness chart for Gen 1 Pokemon
     // Maps attacker type -> defender type -> damage multiplier
@@ -178,13 +186,62 @@ public class BattleService {
         String loser = pokemon1Wins ? pokemon2.getName() : pokemon1.getName();
         String loserSprite = pokemon1Wins ? pokemon2.getSpriteUrl() : pokemon1.getSpriteUrl();
         int winnerHpRemaining = pokemon1Wins ? p1Hp : p2Hp;
+        Long winnerId = pokemon1Wins ? pokemon1.getId() : pokemon2.getId();
 
         // Add winner announcement to battle log
         battleLog.append("\nWINNER: ").append(winner).append(" with ").append(winnerHpRemaining)
                 .append(" HP remaining!");
 
+        // ========== NEW: ADD XP REWARD FOR WINNER ==========
+        int xpGained = 0;
+        int newLevel = 0;
+
+        try {
+            // Get current logged in username
+            String username = getCurrentUsername();
+
+            if (username != null) {
+                // Find the winner's level data
+                PokemonLevel winnerLevel = pokemonLevelRepository
+                        .findByUsernameAndPokemonId(username, winnerId)
+                        .orElse(null);
+
+                if (winnerLevel != null) {
+                    // Base XP: 20 XP per battle win
+                    xpGained = 20;
+                    int oldLevel = winnerLevel.getLevel();
+                    int newExp = winnerLevel.getExperience() + xpGained;
+                    newLevel = oldLevel;
+
+                    // Level up logic: 100 XP = 1 level
+                    while (newExp >= 100) {
+                        newExp -= 100;
+                        newLevel++;
+                    }
+
+                    // Save the updated level data
+                    winnerLevel.setExperience(newExp);
+                    winnerLevel.setLevel(newLevel);
+                    winnerLevel.setLastUpdated(java.time.LocalDateTime.now());
+                    pokemonLevelRepository.save(winnerLevel);
+
+                    // Add XP gain message to battle log
+                    battleLog.append("\n\n✨ ").append(winner).append(" gained ").append(xpGained)
+                            .append(" XP");
+                    if (newLevel > oldLevel) {
+                        battleLog.append(" and LEVELED UP to Level ").append(newLevel).append("! ✨");
+                    } else {
+                        battleLog.append("! (" + newExp + "/100 XP to next level)");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to award XP: " + e.getMessage());
+        }
+
         // Return BattleResult object with all battle information
-        return new BattleResult(winner, winnerSprite, loser, loserSprite, battleLog.toString(), winnerHpRemaining);
+        return new BattleResult(winner, winnerSprite, loser, loserSprite,
+                battleLog.toString(), winnerHpRemaining, xpGained, newLevel);
     }
 
     // Calculate combined attack stat for damage calculation
@@ -229,5 +286,19 @@ public class BattleService {
 
         // Minimum damage is always 1 (every attack does at least 1 damage)
         return Math.max(1, damage);
+    }
+
+    // Helper method to get current logged in username
+    private String getCurrentUsername() {
+        try {
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (principal instanceof UserDetails) {
+                return ((UserDetails) principal).getUsername();
+            } else {
+                return principal.toString();
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

@@ -1,77 +1,146 @@
 package com.gen1pokedex.security;
 
-import io.jsonwebtoken.Claims; // JWT claims abstraction
-import io.jsonwebtoken.Jwts; // JWT builder and parser
-import io.jsonwebtoken.SignatureAlgorithm; // algorithm used to sign JWTs
-import io.jsonwebtoken.security.Keys; // key generator for JWT signing
-import org.springframework.security.core.userdetails.UserDetails; // user details contract used for token creation
-import org.springframework.stereotype.Component; // Spring component annotation
+// Import for reading application.properties values
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
-import java.security.Key; // cryptographic key for signing tokens
-import java.util.Date; // token timestamp handling
-import java.util.HashMap; // mutable map for JWT claims
-import java.util.Map; // generic map type for claims
-import java.util.function.Function; // function extractor for claim retrieval
+// JWT libraries for token creation and validation
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
-// Utility class for JWT creation, parsing, and validation
+// Java utilities for key handling, dates, and collections
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+/**
+ * Utility class for JWT (JSON Web Token) creation, parsing, and validation.
+ * Handles generating tokens for authenticated users and validating incoming
+ * tokens.
+ * The secret key is read from application.properties for consistency across
+ * server restarts.
+ */
 @Component
 public class JwtUtil {
 
-    // Secret key used for signing JWTs. In production, move this to secure storage.
-    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Secret key read from application.properties - FIXED to use consistent key
+    @Value("${jwt.secret:Gen1PokedexDefaultSecretKey2026}")
+    private String secret;
 
-    // Token expiration time in milliseconds (24 hours)
+    // Token expiration time in milliseconds (24 hours = 24 * 60 * 60 * 1000)
     private final long EXPIRATION_TIME = 86400000;
 
-    // Extract the username contained in the token
+    /**
+     * Generates the signing key from the configured secret string.
+     * Uses HMAC-SHA256 algorithm for cryptographic signing.
+     * 
+     * @return Key object used for signing and verifying JWT tokens
+     */
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    /**
+     * Extracts the username (subject) from the JWT token.
+     * 
+     * @param token JWT token string from Authorization header
+     * @return username stored in the token
+     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Extract the token expiration date
+    /**
+     * Extracts the expiration date from the JWT token.
+     * 
+     * @param token JWT token string
+     * @return Date when the token expires
+     */
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Extract a specific claim from the token
+    /**
+     * Generic method to extract any claim from the token.
+     * Uses a function resolver to get specific claim types.
+     * 
+     * @param token          JWT token string
+     * @param claimsResolver function that extracts a claim from Claims object
+     * @return the extracted claim value
+     */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // Parse the token and return all claims
+    /**
+     * Parses the JWT token and returns all claims (payload data).
+     * 
+     * @param token JWT token string
+     * @return Claims object containing all token data
+     */
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(getSigningKey()) // FIXED: Uses consistent secret from properties
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-    // Check whether the token has already expired
+    /**
+     * Checks if the token has already expired.
+     * 
+     * @param token JWT token string
+     * @return true if expired, false if still valid
+     */
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // Generate a new JWT token for a user
+    /**
+     * Generates a new JWT token for an authenticated user.
+     * Includes the user's role in the token claims.
+     * 
+     * @param userDetails Spring Security UserDetails object containing user info
+     * @return signed JWT token string
+     */
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        // Add user role to token claims for authorization
         claims.put("role", userDetails.getAuthorities());
         return createToken(claims, userDetails.getUsername());
     }
 
-    // Build the signed JWT token with claims and expiration
+    /**
+     * Builds the actual JWT token with claims, subject, issued date, and
+     * expiration.
+     * 
+     * @param claims  map of custom claims to include in token
+     * @param subject username of the authenticated user
+     * @return compact JWT string ready to send to client
+     */
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY)
+                .signWith(getSigningKey()) // FIXED: Uses consistent secret from properties
                 .compact();
     }
 
-    // Validate that the token belongs to the user and is not expired
+    /**
+     * Validates the JWT token against the user details.
+     * Checks that the username matches and the token hasn't expired.
+     * 
+     * @param token       JWT token string from request
+     * @param userDetails UserDetails of the authenticated user
+     * @return true if token is valid, false otherwise
+     */
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

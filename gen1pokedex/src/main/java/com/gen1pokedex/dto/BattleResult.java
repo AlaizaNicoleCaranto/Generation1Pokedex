@@ -1,24 +1,32 @@
 package com.gen1pokedex.dto;
 
-public class BattleResult {
-    private String winner; // winning Pokémon name
-    private String winnerSprite; // winner sprite URL
-    private String loser; // losing Pokémon name
-    private String loserSprite; // loser sprite URL
-    private String battleLog; // text log of the battle steps
-    private int winnerHpRemaining; // winner HP after the battle
+// BattleResult DTO - Contains the outcome of a Pokemon battle simulation
+// This is what the frontend receives after a battle
 
-    public BattleResult(String winner, String winnerSprite, String loser, String loserSprite, String battleLog,
-            int winnerHpRemaining) {
+public class BattleResult {
+    private String winner; // Name of the winning Pokemon
+    private String winnerSprite; // Sprite URL of the winner
+    private String loser; // Name of the losing Pokemon
+    private String loserSprite; // Sprite URL of the loser
+    private String battleLog; // Complete battle history text
+    private int winnerHpRemaining; // Winner's HP after battle
+    private int xpGained; // XP earned by winner (NEW)
+    private int newLevel; // Winner's new level after XP gain (NEW)
+
+    // Constructor - Updated with XP fields
+    public BattleResult(String winner, String winnerSprite, String loser, String loserSprite,
+            String battleLog, int winnerHpRemaining, int xpGained, int newLevel) {
         this.winner = winner;
         this.winnerSprite = winnerSprite;
         this.loser = loser;
         this.loserSprite = loserSprite;
         this.battleLog = battleLog;
         this.winnerHpRemaining = winnerHpRemaining;
+        this.xpGained = xpGained;
+        this.newLevel = newLevel;
     }
 
-    // Getters
+    // Getters for all fields
     public String getWinner() {
         return winner;
     }
@@ -41,5 +49,13 @@ public class BattleResult {
 
     public int getWinnerHpRemaining() {
         return winnerHpRemaining;
+    }
+
+    public int getXpGained() {
+        return xpGained;
+    }
+
+    public int getNewLevel() {
+        return newLevel;
     }
 }

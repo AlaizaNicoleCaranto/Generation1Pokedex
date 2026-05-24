@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Gen1 Pokedex Backend API",
-    "description": "Complete REST API collection for Gen1 Pokedex application. Import this into Postman to test all endpoints including evolution and leveling systems.",
+    "description": "Complete REST API collection for Gen1 Pokedex application. Test all endpoints including evolution, leveling systems, and password reset features.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -20,14 +20,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"username\": \"trainer1\", \"password\": \"test123\"}"
+              "raw": "{\"username\": \"trainer1\", \"password\": \"test123\", \"email\": \"trainer1@example.com\"}"
             },
             "url": {
               "raw": "http://localhost:8080/api/users/register",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "register"]
+              "path": [
+                "api",
+                "users",
+                "register"
+              ]
             }
           }
         },
@@ -48,9 +54,106 @@
             "url": {
               "raw": "http://localhost:8080/api/auth/login",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "auth", "login"]
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password - Request Reset Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"trainer1@example.com\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/forgot-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset Password - Use Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"token\": \"YOUR_TOKEN_FROM_CONSOLE\", \"newPassword\": \"newpassword123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/reset-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Password (Logged In User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_JWT_TOKEN_HERE"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"trainer1\", \"currentPassword\": \"test123\", \"newPassword\": \"newpassword123\"}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/auth/change-password",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
             }
           }
         }
@@ -66,13 +169,27 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons?page=0&size=20&sort=name,asc",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons"],
+              "path": [
+                "api",
+                "pokemons"
+              ],
               "query": [
-                {"key": "page", "value": "0"},
-                {"key": "size", "value": "20"},
-                {"key": "sort", "value": "name,asc"}
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "name,asc"
+                }
               ]
             }
           }
@@ -84,9 +201,15 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "1"]
+              "path": [
+                "api",
+                "pokemons",
+                "1"
+              ]
             }
           }
         },
@@ -97,9 +220,16 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/name/pikachu",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "name", "pikachu"]
+              "path": [
+                "api",
+                "pokemons",
+                "name",
+                "pikachu"
+              ]
             }
           }
         },
@@ -110,9 +240,16 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/number/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "number", "25"]
+              "path": [
+                "api",
+                "pokemons",
+                "number",
+                "25"
+              ]
             }
           }
         },
@@ -123,9 +260,16 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/type/Fire",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "type", "Fire"]
+              "path": [
+                "api",
+                "pokemons",
+                "type",
+                "Fire"
+              ]
             }
           }
         },
@@ -136,9 +280,16 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/habitat/Forest",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "habitat", "Forest"]
+              "path": [
+                "api",
+                "pokemons",
+                "habitat",
+                "Forest"
+              ]
             }
           }
         },
@@ -149,9 +300,16 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/rarity/Legendary",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "rarity", "Legendary"]
+              "path": [
+                "api",
+                "pokemons",
+                "rarity",
+                "Legendary"
+              ]
             }
           }
         },
@@ -162,9 +320,15 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/random",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "random"]
+              "path": [
+                "api",
+                "pokemons",
+                "random"
+              ]
             }
           }
         },
@@ -175,11 +339,20 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/suggestions?prefix=pi",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "suggestions"],
+              "path": [
+                "api",
+                "pokemons",
+                "suggestions"
+              ],
               "query": [
-                {"key": "prefix", "value": "pi"}
+                {
+                  "key": "prefix",
+                  "value": "pi"
+                }
               ]
             }
           }
@@ -191,14 +364,32 @@
             "url": {
               "raw": "http://localhost:8080/api/pokemons/search?name=bulba&type=Grass&rarity=Common&habitat=Grassland",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "pokemons", "search"],
+              "path": [
+                "api",
+                "pokemons",
+                "search"
+              ],
               "query": [
-                {"key": "name", "value": "bulba"},
-                {"key": "type", "value": "Grass"},
-                {"key": "rarity", "value": "Common"},
-                {"key": "habitat", "value": "Grassland"}
+                {
+                  "key": "name",
+                  "value": "bulba"
+                },
+                {
+                  "key": "type",
+                  "value": "Grass"
+                },
+                {
+                  "key": "rarity",
+                  "value": "Common"
+                },
+                {
+                  "key": "habitat",
+                  "value": "Grassland"
+                }
               ]
             }
           }
@@ -221,9 +412,16 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/profile",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "profile"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "profile"
+              ]
             }
           }
         },
@@ -248,9 +446,16 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/profile",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "profile"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "profile"
+              ]
             }
           }
         },
@@ -267,9 +472,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/catch/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "catch", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "catch",
+                "25"
+              ]
             }
           }
         },
@@ -286,9 +499,16 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/collection",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "collection"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "collection"
+              ]
             }
           }
         },
@@ -305,9 +525,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/release/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "release", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "release",
+                "25"
+              ]
             }
           }
         },
@@ -324,9 +552,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/favorite/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "favorite", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "favorite",
+                "25"
+              ]
             }
           }
         },
@@ -343,9 +579,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/favorite/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "favorite", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "favorite",
+                "25"
+              ]
             }
           }
         },
@@ -362,9 +606,16 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/badges",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "badges"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "badges"
+              ]
             }
           }
         },
@@ -376,22 +627,28 @@
               {
                 "key": "Authorization",
                 "value": "Bearer YOUR_JWT_TOKEN_HERE"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"experienceGain\": 50}"
-            },
             "url": {
-              "raw": "http://localhost:8080/api/users/trainer1/level-up/25",
+              "raw": "http://localhost:8080/api/users/trainer1/level-up/25?experienceGain=50",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "level-up", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "level-up",
+                "25"
+              ],
+              "query": [
+                {
+                  "key": "experienceGain",
+                  "value": "50"
+                }
+              ]
             }
           }
         },
@@ -408,9 +665,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/pokemon-level/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "pokemon-level", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "pokemon-level",
+                "25"
+              ]
             }
           }
         },
@@ -427,9 +692,17 @@
             "url": {
               "raw": "http://localhost:8080/api/users/trainer1/evolve/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "trainer1", "evolve", "25"]
+              "path": [
+                "api",
+                "users",
+                "trainer1",
+                "evolve",
+                "25"
+              ]
             }
           }
         }
@@ -445,9 +718,15 @@
             "url": {
               "raw": "http://localhost:8080/api/users/leaderboard",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "leaderboard"]
+              "path": [
+                "api",
+                "users",
+                "leaderboard"
+              ]
             }
           }
         },
@@ -458,9 +737,15 @@
             "url": {
               "raw": "http://localhost:8080/api/users/random",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "users", "random"]
+              "path": [
+                "api",
+                "users",
+                "random"
+              ]
             }
           }
         },
@@ -477,9 +762,15 @@
             "url": {
               "raw": "http://localhost:8080/api/daily-challenge/today",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "daily-challenge", "today"]
+              "path": [
+                "api",
+                "daily-challenge",
+                "today"
+              ]
             }
           }
         },
@@ -496,9 +787,16 @@
             "url": {
               "raw": "http://localhost:8080/api/daily-challenge/trainer1/claim",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "daily-challenge", "trainer1", "claim"]
+              "path": [
+                "api",
+                "daily-challenge",
+                "trainer1",
+                "claim"
+              ]
             }
           }
         }
@@ -528,10 +826,17 @@
             "url": {
               "raw": "http://localhost:8080/api/battle/simulate",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "battle", "simulate"]
-            }
+              "path": [
+                "api",
+                "battle",
+                "simulate"
+              ]
+            },
+            "description": "Simulate battle between two Pokemon. Winner receives 20 XP. Response includes xpGained and newLevel fields."
           }
         }
       ]
@@ -555,14 +860,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"pokedexNumber\": 150, \"name\": \"Mewtwo\", \"height\": 2.0, \"weight\": 122.0, \"description\": \"Created by a scientist\", \"hp\": 106, \"attack\": 110, \"defense\": 90, \"speed\": 130, \"specialAttack\": 154, \"specialDefense\": 90, \"habitat\": \"Cave\", \"region\": \"Kanto\", \"rarity\": \"Legendary\", \"spriteUrl\": \"https://example.com/mewtwo.png\"}"
+              "raw": "{\"pokedexNumber\": 150, \"name\": \"Mewtwo\", \"height\": 2.0, \"weight\": 122.0, \"description\": \"Created by a scientist\", \"hp\": 106, \"attack\": 110, \"defense\": 90, \"speed\": 130, \"specialAttack\": 154, \"specialDefense\": 90, \"habitat\": \"Cave\", \"region\": \"Kanto\", \"rarity\": \"Legendary\", \"spriteUrl\": \"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png\"}"
             },
             "url": {
               "raw": "http://localhost:8080/api/admin/pokemons",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "pokemons"]
+              "path": [
+                "api",
+                "admin",
+                "pokemons"
+              ]
             }
           }
         },
@@ -587,9 +898,16 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/pokemons/25",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "pokemons", "25"]
+              "path": [
+                "api",
+                "admin",
+                "pokemons",
+                "25"
+              ]
             }
           }
         },
@@ -606,9 +924,16 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/pokemons/150",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "pokemons", "150"]
+              "path": [
+                "api",
+                "admin",
+                "pokemons",
+                "150"
+              ]
             }
           }
         },
@@ -625,9 +950,15 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/audit-logs",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "audit-logs"]
+              "path": [
+                "api",
+                "admin",
+                "audit-logs"
+              ]
             }
           }
         }
@@ -649,9 +980,15 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users"]
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
             }
           }
         },
@@ -668,9 +1005,16 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1"]
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1"
+              ]
             }
           }
         },
@@ -687,11 +1031,22 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/ban?reason=Violating Terms of Service",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "ban"],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "ban"
+              ],
               "query": [
-                {"key": "reason", "value": "Violating Terms of Service"}
+                {
+                  "key": "reason",
+                  "value": "Violating Terms of Service"
+                }
               ]
             }
           }
@@ -709,11 +1064,22 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/suspend?reason=Inappropriate behavior",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "suspend"],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "suspend"
+              ],
               "query": [
-                {"key": "reason", "value": "Inappropriate behavior"}
+                {
+                  "key": "reason",
+                  "value": "Inappropriate behavior"
+                }
               ]
             }
           }
@@ -731,9 +1097,17 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/reactivate",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "reactivate"]
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "reactivate"
+              ]
             }
           }
         },
@@ -750,14 +1124,22 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/collection",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "collection"]
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "collection"
+              ]
             }
           }
         },
         {
-          "name": "Reset User Password",
+          "name": "Reset User Password (Admin)",
           "request": {
             "method": "POST",
             "header": [
@@ -769,9 +1151,17 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/reset-password",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "reset-password"]
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "reset-password"
+              ]
             }
           }
         },
@@ -788,11 +1178,22 @@
             "url": {
               "raw": "http://localhost:8080/api/admin/users/trainer1/status?newStatus=ACTIVE",
               "protocol": "http",
-              "host": ["localhost"],
+              "host": [
+                "localhost"
+              ],
               "port": "8080",
-              "path": ["api", "admin", "users", "trainer1", "status"],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "trainer1",
+                "status"
+              ],
               "query": [
-                {"key": "newStatus", "value": "ACTIVE"}
+                {
+                  "key": "newStatus",
+                  "value": "ACTIVE"
+                }
               ]
             }
           }
