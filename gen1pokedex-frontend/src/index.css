@@ -1,0 +1,335 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Darker background for better text readability */
+body {
+  min-height: 100vh;
+  font-family: 'VT323', monospace;
+  background-color: #0a0a1a;
+  color: #e0e0e0;
+}
+
+/* Glass morphism container - LESS TRANSPARENT for better readability */
+.glass-card {
+  background: rgba(20, 20, 40, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Slightly more opaque for protected pages (for readability) */
+.glass-card-dark {
+  background: rgba(20, 20, 40, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Pixel border for retro elements */
+.pixel-border {
+  border: 3px solid #4ade80;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+}
+
+.pixel-border-light {
+  border: 2px solid #d4c9b8;
+  border-radius: 12px;
+}
+
+/* Glowing effect for cards */
+.glow-card {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.glow-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 0 2px #4ade80, 0 0 0 4px rgba(74, 222, 128, 0.3);
+}
+
+/* Floating animation */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Pokemon type badges - readable colors */
+.type-normal {
+  background-color: #A8A878;
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-fire {
+  background-color: #F08030;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-water {
+  background-color: #6890F0;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-grass {
+  background-color: #78C850;
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-electric {
+  background-color: #F8D030;
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-ice {
+  background-color: #98D8D8;
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-fighting {
+  background-color: #C03028;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-poison {
+  background-color: #A040A0;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-ground {
+  background-color: #E0C068;
+  color: #1a1a1a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-flying {
+  background-color: #A890F0;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-psychic {
+  background-color: #F85888;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-bug {
+  background-color: #A8B820;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-rock {
+  background-color: #B8A038;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-ghost {
+  background-color: #705898;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.type-dragon {
+  background-color: #7038F8;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4ade80;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #22c55e;
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 8px;
+  background-color: #2a2a3e;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #4ade80;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #4ade80;
+  color: #0a0a1a;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #22c55e;
+  transform: scale(1.02);
+}
+
+.btn-secondary {
+  background-color: #4a4a6a;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #6a6a8a;
+  transform: scale(1.02);
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+  transform: scale(1.02);
+}
+
+/* Input styles */
+.input-retro {
+  background-color: #1a1a2e;
+  border: 2px solid #4ade80;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.input-retro:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+}
+
+/* Text readability improvements */
+.text-readable {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Card Flip Styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}

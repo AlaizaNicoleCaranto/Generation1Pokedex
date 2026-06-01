@@ -109,4 +109,10 @@ public class UserController {
     public double getCompletion(@PathVariable String username) {
         return userService.getCompletionPercentage(username);
     }
+
+    // Get the level and XP of a specific Pokemon in user's collection
+    @GetMapping("/{username}/pokemon/{pokemonId}/level")
+    public int getPokemonLevel(@PathVariable String username, @PathVariable Long pokemonId) {
+        return userService.getPokemonLevel(username, pokemonId);
+    }
 }
