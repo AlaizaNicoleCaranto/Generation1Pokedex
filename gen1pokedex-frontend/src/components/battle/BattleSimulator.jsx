@@ -41,6 +41,7 @@ const BattleSimulator = () => {
     const loadCollection = async () => {
         try {
             setLoading(true);
+            // Load user's caught Pokemon to select for battle
             const data = await userService.getCollection(user?.username);
             setCollection(data);
         } catch (err) {

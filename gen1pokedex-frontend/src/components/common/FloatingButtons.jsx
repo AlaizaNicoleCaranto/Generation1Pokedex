@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import soundService from '../../services/soundService';
-
-// Floating Action Buttons - Bottom right corner
-// Map (bottom) and Battle (above map)
+// Floating Action Buttons - Bottom right corner quick navigation
+// Features: Battle (top button with red pulse) and Map (bottom button)
 const FloatingButtons = () => {
     const [showBattleTip, setShowBattleTip] = useState(false);
     const [showMapTip, setShowMapTip] = useState(false);

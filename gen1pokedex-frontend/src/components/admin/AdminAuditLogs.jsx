@@ -4,7 +4,12 @@ import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import soundService from '../../services/soundService';
 
-// Admin Audit Logs - View all admin actions
+/**
+ * Admin Audit Logs Panel - System action history and accountability
+ * Displays: Timestamp, Admin username, Action (BAN, SUSPEND, etc.), Details
+ * Filters: By action type, search by username, view all admin activities
+ * Purpose: Track all admin operations for security and moderation review
+ */
 const AdminAuditLogs = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,6 +24,7 @@ const AdminAuditLogs = () => {
     const loadLogs = async () => {
         try {
             setLoading(true);
+            // Fetch all admin actions from backend audit trail
             const data = await adminService.getAllAuditLogs();
             setLogs(data);
         } catch (err) {

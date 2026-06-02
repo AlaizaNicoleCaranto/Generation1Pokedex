@@ -37,6 +37,7 @@ const UserProfile = () => {
     const [uploading, setUploading] = useState(false);
 
     const isOwnProfile = user?.username === username;
+    // Check if viewing own profile - enables edit/password change functionality
     const isAdmin = userProfile?.role === 'ADMIN';
 
     // Load saved avatar from localStorage

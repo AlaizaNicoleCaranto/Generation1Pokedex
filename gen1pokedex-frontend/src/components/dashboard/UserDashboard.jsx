@@ -29,6 +29,7 @@ const UserDashboard = () => {
     const loadDashboardData = async () => {
         try {
             setLoading(true);
+            // Load daily challenge, streak, and random Pokemon suggestion
             const [challenge, streakData, random] = await Promise.all([
                 userService.getTodayChallenge(),
                 userService.getStreak(user?.username),

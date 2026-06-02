@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     // Login handler - authenticates user and loads profile
     const login = async (username, password) => {
+        // Submit credentials to backend, receive JWT token on success
         const data = await authService.login(username, password);
         setUser({ username: data.username });
 

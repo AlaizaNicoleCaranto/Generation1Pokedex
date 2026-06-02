@@ -2,7 +2,7 @@ import api from './api';
 
 // Pokemon service - handles all Pokemon data operations
 export const pokemonService = {
-    // Get all Pokemon with pagination and sorting
+    // Fetch all Pokemon with pagination - 20 items per page, sorted by Pokedex number
     getAll: async (page = 0, size = 20, sort = 'number,asc') => {
         const response = await api.get('/pokemons', { params: { page, size, sort } });
         return response.data;

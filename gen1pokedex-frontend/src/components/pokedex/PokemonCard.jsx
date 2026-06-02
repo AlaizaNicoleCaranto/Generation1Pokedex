@@ -45,7 +45,7 @@ const PokemonCard = ({ pokemon }) => {
         navigate(`/pokemon/${pokemon.id}`);
     };
 
-    // Get type color for badge
+    // Get type color for badge - Each Pokemon type has unique color for UI consistency
     const getTypeClass = (typeName) => {
         const typeColors = {
             'Normal': 'bg-[#A8A878]', 'Fire': 'bg-[#F08030]', 'Water': 'bg-[#6890F0]',

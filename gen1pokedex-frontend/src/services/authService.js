@@ -1,7 +1,8 @@
 import api from './api';
 
 // Authentication service - handles all user auth operations
-export const authService = {
+export // Auth service - Handles login, registration, password management
+const authService = {
     // Login user - receives JWT token on successful authentication
     login: async (username, password) => {
         const response = await api.post('/auth/login', { username, password });

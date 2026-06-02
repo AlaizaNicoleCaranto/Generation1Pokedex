@@ -4,6 +4,7 @@ import api from './api';
 // All endpoints require admin privileges on backend
 export const adminService = {
     // Get all users in the system
+    // Fetch all users for admin management panel
     getAllUsers: async () => {
         const response = await api.get('/admin/users');
         return response.data;

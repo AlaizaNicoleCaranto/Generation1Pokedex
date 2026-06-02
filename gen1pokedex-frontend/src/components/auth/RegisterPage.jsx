@@ -4,6 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import PixelButton from '../common/PixelButton';
 import LoadingSpinner from '../common/LoadingSpinner';
 
+/**
+ * Register Page - New user account creation
+ * Features: Email optional, password validation, duplicate username check
+ * Upon registration: User gets random starter Pokemon from 9 options
+ * Background: Forest themed with corner Pokemon (Bulbasaur, Squirtle)
+ */
 const RegisterPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

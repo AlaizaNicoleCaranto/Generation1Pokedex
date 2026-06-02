@@ -5,7 +5,12 @@ import PixelButton from '../common/PixelButton';
 import LoadingSpinner from '../common/LoadingSpinner';
 import soundService from '../../services/soundService';
 
-// Reset Password Page - Set new password using token from email
+/**
+ * Reset Password Page - Set new password using email token
+ * URL Format: /reset-password?token=XXXXX (token from forgot-password email)
+ * Features: Password visibility toggle, validation, form submission
+ * Redirects to login on successful reset
+ */
 const ResetPasswordPage = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');

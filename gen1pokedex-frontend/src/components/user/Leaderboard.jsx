@@ -39,6 +39,7 @@ const Leaderboard = () => {
     if (loading) return <LoadingSpinner fullScreen />;
     if (error) return <div className="text-center text-pixel-red p-8">{error}</div>;
 
+    // Assign medals: Gold for 1st, Silver for 2nd, Bronze for 3rd, then number
     const getMedal = (index) => {
         if (index === 0) return '🥇';
         if (index === 1) return '🥈';

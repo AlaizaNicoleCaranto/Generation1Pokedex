@@ -2,13 +2,13 @@ import api from './api';
 
 // User service - handles user profile, collection, and gameplay operations
 export const userService = {
-    // Get full user profile with all stats
+    // Fetch user profile with all stats, level, progress, badges
     getProfile: async (username) => {
         const response = await api.get(`/users/${username}/profile`);
         return response.data;
     },
 
-    // Get user's caught Pokemon collection
+    // Fetch user's caught Pokemon collection - empty for new users
     getCollection: async (username) => {
         const response = await api.get(`/users/${username}/collection`);
         return response.data;

@@ -4,7 +4,12 @@ import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import soundService from '../../services/soundService';
 
-// Admin Users Management - Full CRUD operations for users
+/**
+ * Admin Users Management Panel - User account control and moderation
+ * Features: List all users, ban/suspend, reactivate, reset password, clear collection
+ * Filters: By status (ACTIVE, BANNED, SUSPENDED), search by username
+ * Actions: Ban permanently, suspend temporarily, reactivate, reset collection
+ */
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -88,7 +93,7 @@ const AdminUsers = () => {
         setShowReasonModal(true);
     };
 
-    // Filter users based on search and status
+    // Apply search filter AND status filter - both conditions must match
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;

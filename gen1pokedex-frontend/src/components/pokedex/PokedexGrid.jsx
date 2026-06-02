@@ -54,11 +54,13 @@ const PokedexGrid = () => {
         try {
             setLoading(true);
             setError(null);
+            // Load 20 Pokemon per page, sorted by Pokedex number
             const data = await pokemonService.getAll(currentPage, itemsPerPage, 'pokedexNumber,asc');
 
             if (data && data.length > 0) {
                 setPokemons(data);
                 setFilteredPokemons(data);
+                // Calculate total pages: 151 Gen1 Pokemon ÷ 20 per page = 8 pages
                 setTotalPages(Math.ceil(151 / itemsPerPage));
             } else {
                 setError('No Pokemon found. Please check if backend is running.');

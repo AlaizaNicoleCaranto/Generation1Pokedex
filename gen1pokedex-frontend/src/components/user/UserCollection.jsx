@@ -29,10 +29,11 @@ const UserCollection = () => {
     const loadCollection = async () => {
         try {
             setLoading(true);
+            // Fetch user's caught Pokemon from backend
             const data = await userService.getCollection(username);
             setCollection(data);
 
-            // Fetch level and XP for each Pokemon in collection
+            // Fetch XP/level data for each caught Pokemon
             const levelsMap = {};
             for (const pokemon of data) {
                 try {
@@ -64,6 +65,7 @@ const UserCollection = () => {
     };
 
     const handleRelease = async (pokemonId, pokemonName) => {
+        // Confirm before permanently removing Pokemon from collection
         if (!window.confirm(`Release ${pokemonName}? This action cannot be undone!`)) {
             return;
         }

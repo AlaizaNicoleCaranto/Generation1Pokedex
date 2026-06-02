@@ -4,7 +4,12 @@ import { pokemonService } from '../../services/pokemonService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import soundService from '../../services/soundService';
 
-// Admin Pokemon Manager - Full CRUD operations for Pokemon
+/**
+ * Admin Pokemon Management Panel - Pokemon database administration
+ * Features: List all 151 Gen1 Pokemon, create/edit/delete, search and filter
+ * Validations: Only Gen1 (1-151), prevents duplicates, full stat editing
+ * Form: Pokedex number, name, stats (HP, Atk, Def, Sp.Atk, Sp.Def, Speed), type, ability
+ */
 const AdminPokemonManager = () => {
     const [pokemons, setPokemons] = useState([]);
     const [loading, setLoading] = useState(true);

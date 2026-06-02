@@ -12,6 +12,7 @@ const Navbar = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [avatarImage, setAvatarImage] = useState(null);
     const navigate = useNavigate();
+    // Check auth state: user exists = logged in, role = ADMIN determines admin menu visibility
     const isAdmin = userProfile?.role === 'ADMIN';
     const location = useLocation();
 

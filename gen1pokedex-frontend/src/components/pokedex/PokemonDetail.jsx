@@ -8,6 +8,12 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import PixelButton from '../common/PixelButton';
 import soundService from '../../services/soundService';
 
+/**
+ * Pokemon Detail Page - Complete Pokemon information and actions
+ * Features: Full stats display, catch button, evolution chain, admin edit/delete
+ * Shows: HP, Attack, Defense, Sp.Atk, Sp.Def, Speed, Types, Abilities, Description
+ * Admin only: Edit Pokemon details or remove from system
+ */
 const PokemonDetail = () => {
   const { id } = useParams();
   const { user, userProfile, refreshProfile } = useAuth();

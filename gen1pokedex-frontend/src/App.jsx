@@ -71,7 +71,7 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Protected Route Wrapper
+// Protected Route Wrapper - Guards routes: checks auth token and optional role requirement
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading, userProfile } = useAuth();
 

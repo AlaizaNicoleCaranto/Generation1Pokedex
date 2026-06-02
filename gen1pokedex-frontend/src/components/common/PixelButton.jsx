@@ -8,7 +8,7 @@ const PixelButton = ({
     type = 'button',
     className = ''
 }) => {
-    // Color variants mapping
+    // Variant colors: primary=green, secondary=gray, danger=red, retro=brown, success=green
     const variants = {
         primary: 'bg-retro-green hover:bg-green-500 text-black border-retro-green',
         secondary: 'bg-gray-700 hover:bg-gray-600 text-white border-gray-500',

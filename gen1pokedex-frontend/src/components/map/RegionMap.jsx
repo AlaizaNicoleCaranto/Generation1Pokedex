@@ -5,6 +5,12 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import PixelButton from '../common/PixelButton';
 import soundService from '../../services/soundService';
 
+/**
+ * Region Map - Interactive Kanto map with Pokemon habitats
+ * Features: Click locations to see Pokemon in that area, color-coded pins by habitat
+ * Habitats: Grassland, Forest, Rock, Cave, Water's Edge, Mountain, Urban, Sea
+ * Modal displays all Pokemon found in selected location
+ */
 const RegionMap = () => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [pokemonsInLocation, setPokemonsInLocation] = useState([]);

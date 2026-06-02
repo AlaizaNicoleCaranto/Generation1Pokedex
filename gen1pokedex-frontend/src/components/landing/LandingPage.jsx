@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import PixelButton from '../common/PixelButton';
 import soundService from '../../services/soundService';
 
-// Landing page - Zoomed Kanto map background with visible roaming Pokemon
+/**
+ * Landing Page - Welcome screen and starter Pokemon selection
+ * Features: Hero section with game intro, 4 starter options (Bulbasaur, Charmander, Squirtle, Pikachu)
+ * Background: Zoomed Kanto map with 8 animated roaming Pokemon
+ * Music: Background music starts here and continues through game
+ */
 const LandingPage = () => {
     const navigate = useNavigate();
 

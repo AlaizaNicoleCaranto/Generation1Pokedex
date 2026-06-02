@@ -4,6 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import PixelButton from '../common/PixelButton';
 import LoadingSpinner from '../common/LoadingSpinner';
 
+/**
+ * Login Page - User authentication with error handling
+ * Features: Password visibility toggle, account status checking, form validation
+ * Background: Forest themed with corner Pokemon (Pikachu, Mewtwo)
+ * Redirects to dashboard on successful login
+ */
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');

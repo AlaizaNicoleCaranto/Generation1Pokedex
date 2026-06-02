@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import App from './App'
 import './index.css'
 
-// Create React Query client for efficient data fetching and caching
+// Create React Query client - caches 30sec, 1 retry on failure, prevents excessive API calls
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
