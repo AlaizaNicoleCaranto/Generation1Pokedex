@@ -108,9 +108,11 @@ mvn clean install
 
 # Run Spring Boot application
 ./mvnw.cmd spring-boot:run
+or
+./mvnw spring-boot:run
 ```
 
-Wait for message: `Started Gen1pokedexApplication in ...`
+Wait for message: `GENERATION 1 Pokédex BACKEND IS RUNNING SUCCESSFULLY!`
 
 **Backend ready at:** `http://localhost:8080`
 
