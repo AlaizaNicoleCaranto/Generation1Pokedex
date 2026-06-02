@@ -1,17 +1,29 @@
 package com.gen1pokedex.controller;
 
+import java.io.IOException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.gen1pokedex.dto.AuthRequest;
 import com.gen1pokedex.dto.UserProfileDTO;
 import com.gen1pokedex.dto.UserProfileUpdateRequest;
 import com.gen1pokedex.entity.Badge;
 import com.gen1pokedex.entity.Pokemon;
 import com.gen1pokedex.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/users")
@@ -101,7 +113,32 @@ public class UserController {
     public UserProfileDTO updateProfile(
             @PathVariable String username,
             @RequestBody UserProfileUpdateRequest updateRequest) {
-        return userService.updateUserProfile(username, updateRequest.getEmail(), updateRequest.getBio());
+        return userService.updateUserProfile(username, updateRequest.getEmail(), updateRequest.getBio(), updateRequest.getAvatarUrl());
+    }
+
+    // Update avatar using multipart file upload
+    @PutMapping(value = "/{username}/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public UserProfileDTO updateAvatar(
+            @PathVariable String username,
+            @RequestPart("avatar") MultipartFile avatar) throws IOException {
+        if (avatar.isEmpty()) {
+            throw new IllegalArgumentException("Avatar file must not be empty.");
+        }
+
+        String contentType = avatar.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Uploaded file is not a valid image.");
+        }
+
+        long maxSizeBytes = 1024L * 1024L; // 1 MB
+        if (avatar.getSize() > maxSizeBytes) {
+            throw new IllegalArgumentException("Avatar image is too large. Please select a file under 1 MB.");
+        }
+
+        String base64Data = Base64.getEncoder().encodeToString(avatar.getBytes());
+        String imageDataUrl = "data:" + contentType + ";base64," + base64Data;
+
+        return userService.updateUserProfile(username, null, null, imageDataUrl);
     }
 
     // Get completion percentage
@@ -112,7 +149,7 @@ public class UserController {
 
     // Get the level and XP of a specific Pokemon in user's collection
     @GetMapping("/{username}/pokemon/{pokemonId}/level")
-    public int getPokemonLevel(@PathVariable String username, @PathVariable Long pokemonId) {
-        return userService.getPokemonLevel(username, pokemonId);
+    public com.gen1pokedex.entity.PokemonLevel getPokemonLevel(@PathVariable String username, @PathVariable Long pokemonId) {
+        return userService.getPokemonLevelData(username, pokemonId);
     }
 }

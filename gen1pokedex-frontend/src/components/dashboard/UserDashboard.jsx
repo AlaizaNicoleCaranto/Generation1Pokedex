@@ -68,7 +68,7 @@ const UserDashboard = () => {
         navigate(path);
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     const completionPercentage = userProfile?.completionPercentage || 0;
     const caughtCount = userProfile?.pokemonCount || 0;

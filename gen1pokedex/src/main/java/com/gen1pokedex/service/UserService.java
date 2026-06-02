@@ -1,16 +1,13 @@
 package com.gen1pokedex.service;
 
 // Import DTO for user profile data transfer
-import com.gen1pokedex.dto.UserProfileDTO;
+import java.util.List;
+import java.util.Set;
 
-// Import entity classes for badges and Pokemon
+import com.gen1pokedex.dto.UserProfileDTO;
 import com.gen1pokedex.entity.Badge;
 import com.gen1pokedex.entity.Pokemon;
 import com.gen1pokedex.entity.User;
-
-// Import Java collections
-import java.util.List;
-import java.util.Set;
 
 /**
  * Service interface for user-related operations.
@@ -125,9 +122,10 @@ public interface UserService {
      * @param username Trainer name
      * @param email New email address (can be null to skip update)
      * @param bio New biography text (can be null to skip update)
-     * @return Updated user profile with new email/bio
+     * @param avatarUrl New avatar image URL or data URI (can be null to skip update)
+     * @return Updated user profile with new email/bio/avatar
      */
-    UserProfileDTO updateUserProfile(String username, String email, String bio);
+    UserProfileDTO updateUserProfile(String username, String email, String bio, String avatarUrl);
 
     /**
      * Get all badges earned by the user.
@@ -177,6 +175,16 @@ public interface UserService {
      * @throws RuntimeException if Pokemon not in user's collection
      */
     int getPokemonLevel(String username, Long pokemonId);
+
+    /**
+     * Get full level and experience data for a specific Pokemon in user's collection.
+     * 
+     * @param username Trainer name
+     * @param pokemonId ID of the Pokemon to check
+     * @return PokemonLevel entity containing level, experience, and last updated timestamp
+     * @throws RuntimeException if Pokemon not in user's collection
+     */
+    com.gen1pokedex.entity.PokemonLevel getPokemonLevelData(String username, Long pokemonId);
 
     /**
      * Evolve a Pokemon if it meets level requirements.

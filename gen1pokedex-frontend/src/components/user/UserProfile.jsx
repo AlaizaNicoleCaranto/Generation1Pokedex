@@ -32,6 +32,8 @@ const UserProfile = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
+    const [avatarStatus, setAvatarStatus] = useState(null);
+    const [passwordError, setPasswordError] = useState(null);
     const [uploading, setUploading] = useState(false);
 
     const isOwnProfile = user?.username === username;
@@ -54,10 +56,12 @@ const UserProfile = () => {
             setLoading(true);
             const profileData = await userService.getProfile(username);
             const badgesData = await userService.getBadges(username);
+            const savedAvatar = localStorage.getItem(`avatar_${username}`);
             setProfile(profileData);
             setBadges(badgesData);
             setEmail(profileData.email || '');
             setBio(profileData.bio || '');
+            setAvatarImage(profileData.avatarUrl || savedAvatar || null);
         } catch (err) {
             setMessage('Failed to load profile');
             setTimeout(() => setMessage(null), 3000);
@@ -68,9 +72,10 @@ const UserProfile = () => {
 
     const handleUpdateProfile = async () => {
         try {
-            await userService.updateProfile(username, email, bio);
+            const updatedProfile = await userService.updateProfile(username, email, bio, avatarImage || profile?.avatarUrl || null);
             await refreshProfile();
-            await loadProfile();
+            setProfile(updatedProfile);
+            setAvatarImage(updatedProfile.avatarUrl || null);
             setEditing(false);
             setMessage('Profile updated successfully!');
             setTimeout(() => setMessage(null), 3000);
@@ -81,12 +86,13 @@ const UserProfile = () => {
     };
 
     const handleChangePassword = async () => {
+        setPasswordError(null);
         if (newPassword !== confirmNewPassword) {
-            setError('New passwords do not match!');
+            setPasswordError('New passwords do not match!');
             return;
         }
         if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters');
+            setPasswordError('Password must be at least 6 characters');
             return;
         }
 
@@ -96,38 +102,71 @@ const UserProfile = () => {
             setCurrentPassword('');
             setNewPassword('');
             setConfirmNewPassword('');
+            setPasswordError(null);
             setMessage('Password changed successfully!');
             setTimeout(() => setMessage(null), 3000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to change password');
+            const apiMessage = err.response?.data?.message || err.response?.data?.error;
+            setPasswordError(apiMessage || err.message || 'Unable to change password. Please check your current password and try again.');
+        }
+    };
+
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0];
+        e.target.value = '';
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                setError('Please upload a valid image file (PNG, JPG, GIF, etc.).');
+                setTimeout(() => setError(null), 3000);
+                return;
+            }
+
+            const maxSizeBytes = 1024 * 1024; // 1 MB
+            if (file.size > maxSizeBytes) {
+                setError('Avatar image is too large. Please choose an image under 1 MB.');
+                setTimeout(() => setError(null), 4000);
+                return;
+            }
+
+            setUploading(true);
+            setError(null);
+            setAvatarStatus(null);
+            try {
+                const updatedProfile = await userService.updateAvatar(username, file);
+                setProfile(updatedProfile);
+                setAvatarImage(updatedProfile.avatarUrl || null);
+                if (updatedProfile.avatarUrl) {
+                    localStorage.setItem(`avatar_${username}`, updatedProfile.avatarUrl);
+                } else {
+                    localStorage.removeItem(`avatar_${username}`);
+                }
+                setAvatarStatus('Avatar uploaded successfully!');
+                setMessage('Avatar updated!');
+                setTimeout(() => setShowAvatarUpload(false), 1500);
+                setTimeout(() => setMessage(null), 3000);
+            } catch (err) {
+                const serverMessage = err.response?.data?.message || err.message;
+                setError(`Failed to upload avatar. ${serverMessage}`);
+                setTimeout(() => setError(null), 5000);
+            } finally {
+                setUploading(false);
+            }
+        }
+    };
+
+    const removeAvatar = async () => {
+        try {
+            const updatedProfile = await userService.updateProfile(username, email, bio, '');
+            setProfile(updatedProfile);
+            setAvatarImage(null);
+            localStorage.removeItem(`avatar_${username}`);
+            setShowAvatarUpload(false);
+            setMessage('Avatar removed');
+            setTimeout(() => setMessage(null), 3000);
+        } catch (err) {
+            setError('Failed to remove avatar');
             setTimeout(() => setError(null), 3000);
         }
-    };
-
-    const handleAvatarUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setUploading(true);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const imageData = reader.result;
-                setAvatarImage(imageData);
-                localStorage.setItem(`avatar_${username}`, imageData);
-                setShowAvatarUpload(false);
-                setMessage('Avatar updated!');
-                setTimeout(() => setMessage(null), 3000);
-                setUploading(false);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const removeAvatar = () => {
-        setAvatarImage(null);
-        localStorage.removeItem(`avatar_${username}`);
-        setShowAvatarUpload(false);
-        setMessage('Avatar removed');
-        setTimeout(() => setMessage(null), 3000);
     };
 
     const getDefaultAvatar = () => {
@@ -146,7 +185,7 @@ const UserProfile = () => {
     const defaultAvatar = getDefaultAvatar();
     const trainerLevel = Math.max(1, Math.floor((profile?.pokemonCount || 0) / 10) + 1);
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
     if (!profile) return <div className="text-center text-pixel-red p-8">User not found</div>;
 
     return (
@@ -307,7 +346,10 @@ const UserProfile = () => {
                                         <button onClick={() => setEditing(true)} className="btn-primary">
                                             EDIT PROFILE
                                         </button>
-                                        <button onClick={() => setChangingPassword(true)} className="btn-secondary">
+                                        <button onClick={() => {
+                                            setChangingPassword(true);
+                                            setPasswordError(null);
+                                        }} className="btn-secondary">
                                             CHANGE PASSWORD
                                         </button>
                                     </div>
@@ -381,14 +423,12 @@ const UserProfile = () => {
                             {uploading ? 'UPLOADING...' : '📷 CHOOSE IMAGE'}
                         </button>
 
-                        {avatarImage && (
-                            <button
-                                onClick={removeAvatar}
-                                className="w-full btn-secondary mb-3"
-                            >
-                                🗑️ REMOVE AVATAR
-                            </button>
-                        )}
+                            {avatarStatus && (
+                                <div className="mb-3 p-3 bg-retro-green/10 border border-retro-green rounded text-center">
+                                    <p className="font-pixel text-xs text-retro-green-dark">{avatarStatus}</p>
+                                </div>
+                            )}
+
 
                         <button
                             onClick={() => setShowAvatarUpload(false)}
@@ -458,11 +498,19 @@ const UserProfile = () => {
                                 />
                             </div>
 
+                            {passwordError && (
+                                <div className="p-3 bg-pixel-red/20 border border-pixel-red rounded-lg text-center text-sm text-pixel-red">
+                                    {passwordError}
+                                </div>
+                            )}
                             <div className="flex gap-3 pt-2">
                                 <button onClick={handleChangePassword} className="flex-1 btn-primary">
                                     UPDATE PASSWORD
                                 </button>
-                                <button onClick={() => setChangingPassword(false)} className="flex-1 btn-secondary">
+                                <button onClick={() => {
+                                    setChangingPassword(false);
+                                    setPasswordError(null);
+                                }} className="flex-1 btn-secondary">
                                     CANCEL
                                 </button>
                             </div>

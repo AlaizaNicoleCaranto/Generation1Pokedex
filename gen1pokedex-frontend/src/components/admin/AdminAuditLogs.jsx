@@ -38,7 +38,7 @@ const AdminAuditLogs = () => {
         return matchesSearch && matchesAction;
     });
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative overflow-auto">
@@ -58,11 +58,11 @@ const AdminAuditLogs = () => {
                                 <div key={i} className="w-4 h-1 bg-pixel-red"></div>
                             ))}
                         </div>
-                        <p className="font-retro text-sm text-text-muted mt-2">Track all admin actions and system events</p>
+                        <p className="font-retro text-sm mt-2">Track all admin actions and system events</p>
                     </div>
                     <button
                         onClick={() => navigate('/admin/dashboard')}
-                        className="font-pixel text-xs text-text-muted hover:text-retro-green transition-colors"
+                        className="font-pixel text-xs hover:text-retro-green transition-colors"
                     >
                         ← BACK TO DASHBOARD
                     </button>

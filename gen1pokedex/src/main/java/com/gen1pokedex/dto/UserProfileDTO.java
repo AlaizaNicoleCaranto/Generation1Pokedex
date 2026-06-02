@@ -11,6 +11,7 @@ public class UserProfileDTO {
     private int pokemonCount; // number of Pokémon caught by the user
     private int favoriteCount; // number of favorite Pokémon
     private double completionPercentage; // Pokédex completion percentage
+    private String avatarUrl; // avatar image URL or data URI
     private List<Badge> badges; // earned achievement badges
     private String status; // account status: ACTIVE, BANNED, or SUSPENDED
 
@@ -69,6 +70,14 @@ public class UserProfileDTO {
 
     public void setCompletionPercentage(double completionPercentage) {
         this.completionPercentage = completionPercentage;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public List<Badge> getBadges() {

@@ -39,6 +39,17 @@ export const authService = {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         localStorage.removeItem('role');
+        
+        // Clear all cached avatar data from previous sessions
+        // This prevents old avatars from showing when switching accounts
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('avatar_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
     },
 
     // Check if user has a valid token stored

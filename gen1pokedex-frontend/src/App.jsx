@@ -60,11 +60,22 @@ const MusicController = () => {
   return null;
 };
 
+// Scroll to top on route change
+const ScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname]);
+
+  return null;
+};
+
 // Protected Route Wrapper
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading, userProfile } = useAuth();
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner fullScreen />;
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && (!userProfile || userProfile.role !== 'ADMIN')) {
     return <Navigate to="/dashboard" />;
@@ -78,6 +89,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen">
+      <ScrollToTop />
       <MusicController />
       {user && <Navbar />}
       {user && <FloatingButtons />}

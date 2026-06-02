@@ -1,7 +1,7 @@
 // Pokeball loading spinner - Uses retro animated Pokeball GIF
-const LoadingSpinner = () => {
+const LoadingSpinner = ({ fullScreen = false }) => {
     return (
-        <div className="flex flex-col items-center justify-center h-screen animate-fadeIn">
+        <div className={`flex flex-col items-center justify-center ${fullScreen ? 'min-h-screen' : 'min-h-[150px]'} animate-fadeIn`}>
             {/* Retro Animated Pokeball GIF */}
             <img
                 src="https://i.pinimg.com/originals/c0/10/bc/c010bc675a8ce64d9a541657a9171b6d.gif"

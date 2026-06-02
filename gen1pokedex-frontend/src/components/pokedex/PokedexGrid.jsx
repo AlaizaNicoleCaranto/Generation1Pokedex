@@ -148,7 +148,7 @@ const PokedexGrid = () => {
         }
     };
 
-    if (loading && currentPage === 0) return <LoadingSpinner />;
+    if (loading && currentPage === 0) return <LoadingSpinner fullScreen />;
 
     if (error) {
         return (

@@ -112,14 +112,37 @@ const PokemonDetail = () => {
 
   const formattedNumber = `#${String(pokemon?.pokedexNumber).padStart(3, '0')}`;
 
-  if (loading) return <LoadingSpinner />;
+  // map pokemon type to a color used for headings / accents
+  const typeColorMap = {
+    normal: '#A8A878',
+    fire: '#F08030',
+    water: '#6890F0',
+    grass: '#78C850',
+    electric: '#F8D030',
+    ice: '#98D8D8',
+    fighting: '#C03028',
+    poison: '#A040A0',
+    ground: '#E0C068',
+    flying: '#A890F0',
+    psychic: '#F85888',
+    bug: '#A8B820',
+    rock: '#B8A038',
+    ghost: '#705898',
+    dragon: '#7038F8',
+    fairy: '#EE99AC',
+    dark: '#705848',
+  };
+  const primaryType = pokemon?.types?.[0]?.name?.toLowerCase() || 'normal';
+  const primaryColor = typeColorMap[primaryType] || '#4ade80';
+
+  if (loading) return <LoadingSpinner fullScreen />;
   if (!pokemon) return <div className="text-center text-pixel-red p-8">Pokemon not found</div>;
 
   return (
     <div className="min-h-screen p-6">
       <div className="container mx-auto max-w-4xl">
         <div className="flex justify-between items-center mb-4">
-          <button onClick={() => navigate(-1)} className="font-pixel text-sm text-text-muted hover:text-retro-green transition-colors">
+          <button onClick={() => navigate(-1)} className="font-pixel text-sm hover:text-retro-green transition-colors">
             ← BACK TO POKEDEX
           </button>
 
@@ -149,17 +172,17 @@ const PokemonDetail = () => {
           </div>
         )}
 
-        <div className="glass-card p-6 md:p-8">
+          <div className="glass-card p-6 md:p-8">
           <div className="text-center mb-6">
             <span className="font-pixel text-sm text-text-muted">{formattedNumber}</span>
-            <h1 className="font-pixel text-2xl md:text-3xl text-text-dark mt-1">{pokemon.name}</h1>
+            <h1 className="font-pixel text-2xl md:text-3xl mt-1" style={{ color: primaryColor }}>{pokemon.name}</h1>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left Column - Image with CRY ON HOVER */}
             <div className="text-center">
               <div
-                className="bg-cream/30 rounded-xl p-6"
+                className="bg-cream/80 rounded-xl p-6"
                 onMouseEnter={() => soundService.playPokemonCry(pokemon.pokedexNumber)}
               >
                 <img
@@ -190,13 +213,13 @@ const PokemonDetail = () => {
 
             {/* Right Column - Stats */}
             <div className="space-y-4">
-              <div className="bg-cream/30 rounded-xl p-4">
+              <div className="bg-cream/80 rounded-xl p-4">
                 <h3 className="font-pixel text-sm text-text-dark mb-3">PROFILE</h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between"><span className="font-retro text-text-muted">Height</span><span className="font-retro text-text-dark">{pokemon.height} m</span></div>
-                  <div className="flex justify-between"><span className="font-retro text-text-muted">Weight</span><span className="font-retro text-text-dark">{pokemon.weight} kg</span></div>
-                  <div className="flex justify-between"><span className="font-retro text-text-muted">Habitat</span><span className="font-retro text-text-dark">{pokemon.habitat || 'Unknown'}</span></div>
-                  <div className="flex justify-between"><span className="font-retro text-text-muted">Rarity</span>
+                  <div className="flex justify-between"><span className="font-retro text-text-dark">Height</span><span className="font-retro text-text-dark">{pokemon.height} m</span></div>
+                  <div className="flex justify-between"><span className="font-retro text-text-dark">Weight</span><span className="font-retro text-text-dark">{pokemon.weight} kg</span></div>
+                  <div className="flex justify-between"><span className="font-retro text-text-dark">Habitat</span><span className="font-retro text-text-dark">{pokemon.habitat || 'Unknown'}</span></div>
+                  <div className="flex justify-between"><span className="font-retro text-text-dark">Rarity</span>
                     <span className={`font-retro ${pokemon.rarity === 'Legendary' ? 'text-retro-gold' : pokemon.rarity === 'Rare' ? 'text-pixel-blue' : 'text-text-dark'}`}>
                       {pokemon.rarity || 'Common'}
                     </span>
@@ -204,7 +227,7 @@ const PokemonDetail = () => {
                 </div>
               </div>
 
-              <div className="bg-cream/30 rounded-xl p-4">
+              <div className="bg-cream/80 rounded-xl p-4">
                 <h3 className="font-pixel text-sm text-text-dark mb-3">BASE STATS</h3>
                 <div className="space-y-2">
                   <StatBar label="HP" value={pokemon.hp} max={255} color="retro-green" />
@@ -218,16 +241,16 @@ const PokemonDetail = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-cream/30 rounded-xl">
+          <div className="mt-6 p-4 bg-cream/80 rounded-xl">
             <p className="font-retro text-text-dark">{pokemon.description || `${pokemon.name} is a ${pokemon.types?.map(t => t.name).join('/')}-type Pokemon from the Kanto region.`}</p>
           </div>
 
           {pokemon.abilities?.length > 0 && (
             <div className="mt-4">
-              <h3 className="font-pixel text-sm text-text-dark mb-2">ABILITIES</h3>
+              <h3 className="font-pixel text-sm mb-2" style={{ color: primaryColor }}>ABILITIES</h3>
               <div className="flex flex-wrap gap-2">
                 {pokemon.abilities.map((ability) => (
-                  <span key={ability.id} className="px-3 py-1 bg-cream/50 rounded-full font-retro text-sm text-text-dark">{ability.name}</span>
+                  <span key={ability.id} className="ability-badge px-3 py-1 bg-cream/90 rounded-full font-retro text-sm text-text-dark">{ability.name}</span>
                 ))}
               </div>
             </div>
@@ -351,7 +374,7 @@ const StatBar = ({ label, value, max, color }) => {
   return (
     <div>
       <div className="flex justify-between text-xs mb-0.5">
-        <span className="font-pixel text-[10px] text-text-muted">{label}</span>
+        <span className="font-pixel text-[10px] text-text-dark">{label}</span>
         <span className="font-retro text-text-dark">{value}</span>
       </div>
       <div className="w-full bg-cream-dark rounded-full h-2">

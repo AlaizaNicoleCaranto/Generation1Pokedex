@@ -95,7 +95,7 @@ const AdminUsers = () => {
         return matchesSearch && matchesStatus;
     });
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative overflow-auto">
@@ -116,11 +116,11 @@ const AdminUsers = () => {
                                 <div key={i} className="w-4 h-1 bg-pixel-red"></div>
                             ))}
                         </div>
-                        <p className="font-retro text-sm text-text-muted mt-2">Manage trainers: ban, suspend, reset passwords, and more</p>
+                        <p className="font-retro text-sm text-muted mt-2">Manage trainers: ban, suspend, reset passwords, and more</p>
                     </div>
                     <button
                         onClick={() => navigate('/admin/dashboard')}
-                        className="font-pixel text-xs text-text-muted hover:text-retro-green transition-colors"
+                        className="font-pixel text-xs text-muted hover:text-retro-green transition-colors"
                     >
                         ← BACK TO DASHBOARD
                     </button>

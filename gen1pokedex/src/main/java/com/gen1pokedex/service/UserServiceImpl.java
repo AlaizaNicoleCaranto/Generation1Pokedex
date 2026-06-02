@@ -264,7 +264,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public UserProfileDTO updateUserProfile(String username, String email, String bio) {
+    public UserProfileDTO updateUserProfile(String username, String email, String bio, String avatarUrl) {
         User user = getUserByUsername(username);
 
         if (email != null) {
@@ -272,6 +272,9 @@ public class UserServiceImpl implements UserService {
         }
         if (bio != null) {
             user.setBio(bio);
+        }
+        if (avatarUrl != null) {
+            user.setAvatarUrl(avatarUrl.isEmpty() ? null : avatarUrl);
         }
         user.setUpdatedAt(LocalDateTime.now());
 
@@ -399,6 +402,28 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
             return 1; // Default to level 1 on error
         }
+    }
+
+    @Override
+    public PokemonLevel getPokemonLevelData(String username, Long pokemonId) {
+        User user = getUserByUsername(username);
+        Pokemon pokemon = pokemonRepository.findById(pokemonId)
+                .orElseThrow(() -> new PokemonNotFoundException("Pokemon not found: " + pokemonId));
+
+        if (!user.getPokemons().contains(pokemon)) {
+            throw new RuntimeException("Pokemon not found in your collection");
+        }
+
+        return pokemonLevelRepository.findByUsernameAndPokemonId(username, pokemonId)
+                .orElseGet(() -> {
+                    PokemonLevel newLevel = new PokemonLevel();
+                    newLevel.setUsername(username);
+                    newLevel.setPokemonId(pokemonId);
+                    newLevel.setLevel(1);
+                    newLevel.setExperience(0);
+                    newLevel.setLastUpdated(LocalDateTime.now());
+                    return pokemonLevelRepository.save(newLevel);
+                });
     }
 
     /**
@@ -531,6 +556,7 @@ public class UserServiceImpl implements UserService {
         profile.setRole(user.getRole());
         profile.setEmail(user.getEmail());
         profile.setBio(user.getBio());
+        profile.setAvatarUrl(user.getAvatarUrl());
         profile.setPokemonCount(user.getPokemons().size());
         profile.setFavoriteCount(user.getFavorites().size());
         profile.setCompletionPercentage(getCompletionPercentage(user.getUsername()));

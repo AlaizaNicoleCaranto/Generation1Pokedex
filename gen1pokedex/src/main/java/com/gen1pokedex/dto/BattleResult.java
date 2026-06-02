@@ -5,6 +5,7 @@ package com.gen1pokedex.dto;
 
 public class BattleResult {
     private String winner; // Name of the winning Pokemon
+    private Long winnerId; // ID of the winning Pokemon
     private String winnerSprite; // Sprite URL of the winner
     private String loser; // Name of the losing Pokemon
     private String loserSprite; // Sprite URL of the loser
@@ -12,11 +13,13 @@ public class BattleResult {
     private int winnerHpRemaining; // Winner's HP after battle
     private int xpGained; // XP earned by winner (NEW)
     private int newLevel; // Winner's new level after XP gain (NEW)
+    private int winnerExperience; // Winner's current XP after battle
 
-    // Constructor - Updated with XP fields
-    public BattleResult(String winner, String winnerSprite, String loser, String loserSprite,
-            String battleLog, int winnerHpRemaining, int xpGained, int newLevel) {
+    // Constructor - Updated with winnerId and XP fields
+    public BattleResult(String winner, Long winnerId, String winnerSprite, String loser, String loserSprite,
+            String battleLog, int winnerHpRemaining, int xpGained, int newLevel, int winnerExperience) {
         this.winner = winner;
+        this.winnerId = winnerId;
         this.winnerSprite = winnerSprite;
         this.loser = loser;
         this.loserSprite = loserSprite;
@@ -24,6 +27,7 @@ public class BattleResult {
         this.winnerHpRemaining = winnerHpRemaining;
         this.xpGained = xpGained;
         this.newLevel = newLevel;
+        this.winnerExperience = winnerExperience;
     }
 
     // Getters for all fields
@@ -57,5 +61,13 @@ public class BattleResult {
 
     public int getNewLevel() {
         return newLevel;
+    }
+
+    public int getWinnerExperience() {
+        return winnerExperience;
+    }
+
+    public Long getWinnerId() {
+        return winnerId;
     }
 }

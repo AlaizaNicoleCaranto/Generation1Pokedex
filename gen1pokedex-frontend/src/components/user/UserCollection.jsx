@@ -32,7 +32,7 @@ const UserCollection = () => {
             const data = await userService.getCollection(username);
             setCollection(data);
 
-            // Fetch level for each Pokemon in collection
+            // Fetch level and XP for each Pokemon in collection
             const levelsMap = {};
             for (const pokemon of data) {
                 try {
@@ -43,7 +43,10 @@ const UserCollection = () => {
                     });
                     if (response.ok) {
                         const levelData = await response.json();
-                        levelsMap[pokemon.id] = typeof levelData === 'number' ? { level: levelData, experience: 0 } : levelData;
+                        levelsMap[pokemon.id] = {
+                            level: levelData.level ?? 1,
+                            experience: levelData.experience ?? 0
+                        };
                     } else {
                         levelsMap[pokemon.id] = { level: 1, experience: 0 };
                     }
@@ -92,7 +95,7 @@ const UserCollection = () => {
         setImgErrors(prev => ({ ...prev, [pokemonId]: true }));
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative">

@@ -22,6 +22,10 @@ public class User {
 
         private String bio; // optional trainer bio/profile description
 
+        @Lob
+        @Column(columnDefinition = "LONGTEXT")
+        private String avatarUrl; // stored trainer avatar image URL or data URI
+
         private String role = "USER"; // role for access control: USER or ADMIN
 
         // account status: ACTIVE, BANNED, or SUSPENDED
@@ -83,6 +87,14 @@ public class User {
 
         public void setBio(String bio) {
                 this.bio = bio;
+        }
+
+        public String getAvatarUrl() {
+                return avatarUrl;
+        }
+
+        public void setAvatarUrl(String avatarUrl) {
+                this.avatarUrl = avatarUrl;
         }
 
         public String getRole() {

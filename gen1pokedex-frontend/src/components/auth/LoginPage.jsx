@@ -9,6 +9,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [errorType, setErrorType] = useState(null); // 'banned', 'suspended', or null
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -19,25 +20,37 @@ const LoginPage = () => {
     useEffect(() => {
         if (errorParam === 'account_blocked') {
             setError('Your account has been blocked. Please contact support.');
+            setErrorType('banned');
         }
     }, [errorParam]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        setErrorType(null);
         setLoading(true);
 
         try {
             await login(username, password);
             navigate('/dashboard');
         } catch (err) {
-            const message = err.response?.data?.message;
-            if (message?.includes('banned')) {
-                setError('Account banned. Please contact an administrator.');
-            } else if (message?.includes('suspended')) {
-                setError('Account suspended. Please contact an administrator.');
+            const errorData = err.response?.data;
+            const backendErrorType = errorData?.error_type;
+            const message = errorData?.message;
+
+            // Check backend error_type field for specific status
+            if (backendErrorType === 'USER_BANNED') {
+                setError('❌ Your account has been PERMANENTLY BANNED. Contact an administrator for details.');
+                setErrorType('banned');
+            } else if (backendErrorType === 'USER_SUSPENDED') {
+                setError('⏸️  Your account has been TEMPORARILY SUSPENDED. Contact an administrator for details.');
+                setErrorType('suspended');
+            } else if (message?.includes('not found')) {
+                setError('⚠️ Invalid username or password. Please try again.');
+                setErrorType(null);
             } else {
-                setError('Invalid username or password. Please try again.');
+                setError('⚠️ Login failed. ' + (message || 'Please try again.'));
+                setErrorType(null);
             }
         } finally {
             setLoading(false);
@@ -127,10 +140,16 @@ const LoginPage = () => {
                         </div>
                     </div>
 
-                    {/* Error Message */}
+                    {/* Error Message - Show different styling for banned/suspended */}
                     {error && (
-                        <div className="bg-pixel-red/20 border border-pixel-red p-3 mb-6">
-                            <p className="font-pixel text-xs text-pixel-red text-center">{error}</p>
+                        <div className={`p-4 mb-6 border-2 font-pixel text-xs text-center ${
+                            errorType === 'banned' 
+                                ? 'bg-red-900/30 border-red-600 text-red-400 animate-pulse' 
+                                : errorType === 'suspended' 
+                                ? 'bg-yellow-900/30 border-yellow-600 text-yellow-400' 
+                                : 'bg-pixel-red/20 border-pixel-red text-pixel-red'
+                        }`}>
+                            {error}
                         </div>
                     )}
 

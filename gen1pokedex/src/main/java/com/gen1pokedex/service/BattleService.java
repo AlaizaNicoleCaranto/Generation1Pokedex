@@ -1,34 +1,22 @@
 package com.gen1pokedex.service;
 
 // Import BattleResult DTO for returning battle outcomes
-import com.gen1pokedex.dto.BattleResult;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
-// Import Pokemon entity for accessing Pokemon data
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import com.gen1pokedex.dto.BattleResult;
 import com.gen1pokedex.entity.Pokemon;
 import com.gen1pokedex.entity.PokemonLevel;
 import com.gen1pokedex.entity.Type;
-
-// Import custom exception for when Pokemon is not found
 import com.gen1pokedex.exception.PokemonNotFoundException;
-
-// Import Pokemon repository for database access
-import com.gen1pokedex.repository.PokemonRepo;
 import com.gen1pokedex.repository.PokemonLevelRepo;
-
-// Import Spring annotations for dependency injection
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-// Import HashMap and Map for storing type effectiveness chart
-import java.util.HashMap;
-import java.util.Map;
-
-// Import Random for adding randomness to damage calculations
-import java.util.Random;
-
-// Import Security for getting current logged in user
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.gen1pokedex.repository.PokemonRepo;
 
 // Service class that handles Pokemon battle simulation logic
 @Service
@@ -129,6 +117,7 @@ public class BattleService {
 
         // Track current turn number for battle log
         int turn = 1;
+        int lastAttacker = 0; // 1 = pokemon1, 2 = pokemon2
 
         // Create Random instance for damage variation
         Random random = new Random();
@@ -143,6 +132,7 @@ public class BattleService {
 
             if (p1AttacksFirst) {
                 // Pokemon 1 attacks first
+                lastAttacker = 1;
                 int damage = calculateDamage(p1Attack, p2Defense, p1VsP2, random);
                 p2Hp -= damage;
                 battleLog.append("  ").append(pokemon1.getName()).append(" attacks! Deals ").append(damage)
@@ -153,12 +143,14 @@ public class BattleService {
                     break;
 
                 // Pokemon 2 counterattacks (if still alive)
+                lastAttacker = 2;
                 damage = calculateDamage(p2Attack, p1Defense, p2VsP1, random);
                 p1Hp -= damage;
                 battleLog.append("  ").append(pokemon2.getName()).append(" counterattacks! Deals ").append(damage)
                         .append(" damage!\n");
             } else {
                 // Pokemon 2 attacks first (faster Pokemon)
+                lastAttacker = 2;
                 int damage = calculateDamage(p2Attack, p1Defense, p2VsP1, random);
                 p1Hp -= damage;
                 battleLog.append("  ").append(pokemon2.getName()).append(" attacks! Deals ").append(damage)
@@ -169,6 +161,7 @@ public class BattleService {
                     break;
 
                 // Pokemon 1 counterattacks (if still alive)
+                lastAttacker = 1;
                 damage = calculateDamage(p1Attack, p2Defense, p1VsP2, random);
                 p2Hp -= damage;
                 battleLog.append("  ").append(pokemon1.getName()).append(" counterattacks! Deals ").append(damage)
@@ -180,12 +173,27 @@ public class BattleService {
         }
 
         // Determine winner based on which Pokemon still has HP remaining
-        boolean pokemon1Wins = p2Hp <= 0;
+        // Pokemon 1 wins only if it has HP > 0 AND Pokemon 2 has HP <= 0
+        boolean pokemon1Wins = p1Hp > 0 && p2Hp <= 0;
+        boolean pokemon2Alive = p2Hp > 0 && p1Hp <= 0;
+
+        // Fallback: if both faint or neither condition is met, use HP difference
+        // but resolve tied knockouts using the last Pokemon to attack
+        if (!pokemon1Wins && !pokemon2Alive) {
+            if (p1Hp > p2Hp) {
+                pokemon1Wins = true;
+            } else if (p2Hp > p1Hp) {
+                pokemon1Wins = false;
+            } else {
+                pokemon1Wins = lastAttacker == 1;
+            }
+        }
+
         String winner = pokemon1Wins ? pokemon1.getName() : pokemon2.getName();
         String winnerSprite = pokemon1Wins ? pokemon1.getSpriteUrl() : pokemon2.getSpriteUrl();
         String loser = pokemon1Wins ? pokemon2.getName() : pokemon1.getName();
         String loserSprite = pokemon1Wins ? pokemon2.getSpriteUrl() : pokemon1.getSpriteUrl();
-        int winnerHpRemaining = pokemon1Wins ? p1Hp : p2Hp;
+        int winnerHpRemaining = pokemon1Wins ? Math.max(1, p1Hp) : Math.max(1, p2Hp);
         Long winnerId = pokemon1Wins ? pokemon1.getId() : pokemon2.getId();
 
         // Add winner announcement to battle log
@@ -195,6 +203,7 @@ public class BattleService {
         // ========== NEW: ADD XP REWARD FOR WINNER ==========
         int xpGained = 0;
         int newLevel = 0;
+        int winnerExperience = 0;
 
         try {
             // Get current logged in username
@@ -206,33 +215,41 @@ public class BattleService {
                         .findByUsernameAndPokemonId(username, winnerId)
                         .orElse(null);
 
-                if (winnerLevel != null) {
-                    // Base XP: 20 XP per battle win
-                    xpGained = 20;
-                    int oldLevel = winnerLevel.getLevel();
-                    int newExp = winnerLevel.getExperience() + xpGained;
-                    newLevel = oldLevel;
-
-                    // Level up logic: 100 XP = 1 level
-                    while (newExp >= 100) {
-                        newExp -= 100;
-                        newLevel++;
-                    }
-
-                    // Save the updated level data
-                    winnerLevel.setExperience(newExp);
-                    winnerLevel.setLevel(newLevel);
+                if (winnerLevel == null) {
+                    winnerLevel = new PokemonLevel();
+                    winnerLevel.setUsername(username);
+                    winnerLevel.setPokemonId(winnerId);
+                    winnerLevel.setLevel(1);
+                    winnerLevel.setExperience(0);
                     winnerLevel.setLastUpdated(java.time.LocalDateTime.now());
-                    pokemonLevelRepository.save(winnerLevel);
+                }
 
-                    // Add XP gain message to battle log
-                    battleLog.append("\n\n✨ ").append(winner).append(" gained ").append(xpGained)
-                            .append(" XP");
-                    if (newLevel > oldLevel) {
-                        battleLog.append(" and LEVELED UP to Level ").append(newLevel).append("! ✨");
-                    } else {
-                        battleLog.append("! (" + newExp + "/100 XP to next level)");
-                    }
+                // Base XP: 20 XP per battle win
+                xpGained = 20;
+                int oldLevel = winnerLevel.getLevel();
+                int newExp = winnerLevel.getExperience() + xpGained;
+                newLevel = oldLevel;
+
+                // Level up logic: 100 XP = 1 level
+                while (newExp >= 100) {
+                    newExp -= 100;
+                    newLevel++;
+                }
+
+                // Save the updated level data
+                winnerLevel.setExperience(newExp);
+                winnerLevel.setLevel(newLevel);
+                winnerLevel.setLastUpdated(java.time.LocalDateTime.now());
+                pokemonLevelRepository.save(winnerLevel);
+                winnerExperience = newExp;
+
+                // Add XP gain message to battle log
+                battleLog.append("\n\n✨ ").append(winner).append(" gained ").append(xpGained)
+                        .append(" XP");
+                if (newLevel > oldLevel) {
+                    battleLog.append(" and LEVELED UP to Level ").append(newLevel).append("! ✨");
+                } else {
+                    battleLog.append("! (" + newExp + "/100 XP to next level)");
                 }
             }
         } catch (Exception e) {
@@ -240,8 +257,8 @@ public class BattleService {
         }
 
         // Return BattleResult object with all battle information
-        return new BattleResult(winner, winnerSprite, loser, loserSprite,
-                battleLog.toString(), winnerHpRemaining, xpGained, newLevel);
+        return new BattleResult(winner, winnerId, winnerSprite, loser, loserSprite,
+                battleLog.toString(), winnerHpRemaining, xpGained, newLevel, winnerExperience);
     }
 
     // Calculate combined attack stat for damage calculation

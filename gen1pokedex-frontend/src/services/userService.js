@@ -50,9 +50,20 @@ export const userService = {
         return response.data;
     },
 
-    // Update user profile (email and/or bio)
-    updateProfile: async (username, email, bio) => {
-        const response = await api.put(`/users/${username}/profile`, { email, bio });
+    // Update user profile (email, bio, and/or avatar)
+    updateProfile: async (username, email, bio, avatarUrl) => {
+        const response = await api.put(`/users/${username}/profile`, { email, bio, avatarUrl });
+        return response.data;
+    },
+
+    // Upload avatar image file using multipart form data
+    updateAvatar: async (username, avatarFile) => {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        const response = await api.put(
+            `/users/${username}/profile/avatar`,
+            formData
+        );
         return response.data;
     },
 

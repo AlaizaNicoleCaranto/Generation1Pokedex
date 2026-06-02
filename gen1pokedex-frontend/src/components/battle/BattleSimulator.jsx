@@ -22,6 +22,9 @@ const BattleSimulator = () => {
     const [battling, setBattling] = useState(false);
     const [battlePhase, setBattlePhase] = useState('select');
     const [attackAnimation, setAttackAnimation] = useState(null);
+    const [battleEffect, setBattleEffect] = useState(null);
+    const [activeAttacker, setActiveAttacker] = useState(null);
+    const [impactTarget, setImpactTarget] = useState(null);
     const [error, setError] = useState(null);
     const [showWinner, setShowWinner] = useState(false);
     const [winnerCelebration, setWinnerCelebration] = useState(null);
@@ -110,13 +113,14 @@ const BattleSimulator = () => {
         setP1Health(100);
         setP2Health(100);
         setCurrentMove(null);
+        setBattleEffect(null);
+        setActiveAttacker(null);
         soundService.playClickSound();
-
-        await simulateBattleAnimation();
 
         try {
             const result = await battleService.simulateBattle(selectedPokemon1.id, selectedPokemon2.id);
             setBattleResult(result);
+            await simulateBattleAnimation(result);
             setBattlePhase('result');
 
             if (result.battleLog) {
@@ -148,27 +152,97 @@ const BattleSimulator = () => {
         }
     };
 
-    const simulateBattleAnimation = async () => {
-        const powerMoves = ['💥 THUNDERBOLT!', '🔥 FLAMETHROWER!', '💧 HYDRO PUMP!', '🌱 SOLAR BEAM!', '⚡ QUICK ATTACK!'];
+    const simulateBattleAnimation = async (result) => {
+        const powerMoves = ['💥 THUNDERBOLT!', '🔥 FLAMETHROWER!', '💧 HYDRO PUMP!', '🌱 SOLAR BEAM!', '⚡ QUICK ATTACK!', '🌊 SURF!', '🎇 ZAP CANNON!'];
+        const openingRounds = 2;
+        let localP1 = 100;
+        let localP2 = 100;
+        const winnerIsP1 = result.winnerId === selectedPokemon1?.id;
+        const winnerPokemon = winnerIsP1 ? selectedPokemon1 : selectedPokemon2;
+        const loserPokemon = winnerIsP1 ? selectedPokemon2 : selectedPokemon1;
+        const attackSide = winnerIsP1 ? 'left' : 'right';
 
-        for (let i = 0; i < 4; i++) {
+        for (let round = 0; round < openingRounds; round++) {
+            const isFirstAttacker = round % 2 === 0;
+            const attacker = isFirstAttacker ? selectedPokemon1 : selectedPokemon2;
+            const target = isFirstAttacker ? selectedPokemon2 : selectedPokemon1;
+            const attackAnimationSide = isFirstAttacker ? 'left' : 'right';
+            const damage = 12 + Math.floor(Math.random() * 8);
             const randomMove = powerMoves[Math.floor(Math.random() * powerMoves.length)];
+
+            setActiveAttacker(attacker.id);
+            setImpactTarget(null);
             setCurrentMove(randomMove);
+            setAttackAnimation(attackAnimationSide);
+            setBattleEffect('charge');
 
-            setAttackAnimation('left');
-            soundService.playAttackSound();
-            setP2Health(prev => Math.max(0, prev - 15));
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 700));
 
-            setAttackAnimation('right');
-            playClashSound();
+            setBattleEffect('beam');
             playPowerMoveSound();
-            setP1Health(prev => Math.max(0, prev - 10));
-            await new Promise(r => setTimeout(r, 400));
+            await new Promise(r => setTimeout(r, 450));
+
+            if (attackAnimationSide === 'left') {
+                localP2 = Math.max(0, localP2 - damage);
+                setP2Health(localP2);
+                setImpactTarget(selectedPokemon2?.id);
+            } else {
+                localP1 = Math.max(0, localP1 - damage);
+                setP1Health(localP1);
+                setImpactTarget(selectedPokemon1?.id);
+            }
+
+            setBattleEffect('impact');
+            playClashSound();
+            await new Promise(r => setTimeout(r, 520));
+
+            setBattleEffect(null);
+            setAttackAnimation(null);
+            setActiveAttacker(null);
+            setImpactTarget(null);
+            await new Promise(r => setTimeout(r, 350));
         }
+
+        const finishingMove = '💥 FINISHING STRIKE!';
+        setActiveAttacker(winnerPokemon.id);
+        setImpactTarget(null);
+        setCurrentMove(finishingMove);
+        setAttackAnimation(attackSide);
+        setBattleEffect('charge');
+
+        await new Promise(r => setTimeout(r, 700));
+
+        setBattleEffect('beam');
+        playPowerMoveSound();
+        await new Promise(r => setTimeout(r, 450));
+
+        if (winnerIsP1) {
+            setP2Health(0);
+            setImpactTarget(selectedPokemon2?.id);
+            setP1Health(result.winnerHpRemaining);
+        } else {
+            setP1Health(0);
+            setImpactTarget(selectedPokemon1?.id);
+            setP2Health(result.winnerHpRemaining);
+        }
+
+        setBattleEffect('impact');
+        playClashSound();
+        await new Promise(r => setTimeout(r, 520));
+
+        setBattleEffect(null);
         setAttackAnimation(null);
+        setActiveAttacker(null);
+        setImpactTarget(null);
+        await new Promise(r => setTimeout(r, 350));
+
         setCurrentMove(null);
+        setAttackAnimation(null);
+        setBattleEffect(null);
+        setActiveAttacker(null);
+        setImpactTarget(null);
     };
+
 
     const resetBattle = () => {
         setSelectedPokemon1(null);
@@ -186,7 +260,7 @@ const BattleSimulator = () => {
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${pokemon.pokedexNumber}.gif`;
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative overflow-auto">
@@ -337,21 +411,23 @@ const BattleSimulator = () => {
                         )}
 
                         {/* VS Arena with clash animation */}
-                        <div className="grid grid-cols-3 items-center gap-4 mb-8">
-                            <div className={`text-center transition-all duration-100 ${attackAnimation === 'left' ? 'animate-battle-shake' : ''}`}>
+                        <div className="grid grid-cols-3 items-center gap-4 mb-8 relative">
+                            <div className={`text-center transition-all duration-150 ${attackAnimation === 'left' ? 'animate-battle-shake scale-up' : ''} ${activeAttacker === selectedPokemon1?.id ? 'shadow-glow' : ''} ${impactTarget === selectedPokemon1?.id ? 'impact-flash' : ''}`}>
                                 <img src={getSprite(selectedPokemon1)} alt={selectedPokemon1.name} className="w-28 h-28 mx-auto pixelated" />
                                 <p className="font-pixel text-sm text-white mt-2">{selectedPokemon1.name}</p>
                             </div>
                             <div className="relative">
-                                <span className="font-pixel text-5xl text-pixel-red animate-pulse">VS</span>
-                                {attackAnimation && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-3xl animate-ping">⚡</span>
-                                    </div>
-                                )}
-                                <p className="font-retro text-xs text-retro-gold mt-2">Battling...</p>
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    {battleEffect === 'charge' && <div className="charge-core"></div>}
+                                    {battleEffect === 'beam' && (
+                                        <div className={`energy-trail ${attackAnimation === 'left' ? 'energy-from-left' : 'energy-from-right'}`}></div>
+                                    )}
+                                    {battleEffect === 'impact' && <div className="impact-ring"></div>}
+                                </div>
+                                <span className="font-pixel text-5xl text-pixel-red drop-shadow">VS</span>
+                                <p className="font-retro text-xs text-retro-gold mt-2">Battle energy rising...</p>
                             </div>
-                            <div className={`text-center transition-all duration-100 ${attackAnimation === 'right' ? 'animate-battle-shake' : ''}`}>
+                            <div className={`text-center transition-all duration-150 ${attackAnimation === 'right' ? 'animate-battle-shake scale-up' : ''} ${activeAttacker === selectedPokemon2?.id ? 'shadow-glow' : ''} ${impactTarget === selectedPokemon2?.id ? 'impact-flash' : ''}`}>
                                 <img src={getSprite(selectedPokemon2)} alt={selectedPokemon2.name} className="w-28 h-28 mx-auto pixelated" />
                                 <p className="font-pixel text-sm text-white mt-2">{selectedPokemon2.name}</p>
                             </div>
@@ -367,7 +443,7 @@ const BattleSimulator = () => {
                                 <div className="text-center">
                                     <div className="mb-6">
                                         <img
-                                            src={getSprite(selectedPokemon1?.id === battleResult.winnerId ? selectedPokemon1 : selectedPokemon2)}
+                                            src={battleResult.winnerSprite || getSprite(selectedPokemon1?.id === battleResult.winnerId ? selectedPokemon1 : selectedPokemon2)}
                                             alt={winnerCelebration}
                                             className="w-48 h-48 mx-auto pixelated animate-float"
                                         />
@@ -379,6 +455,7 @@ const BattleSimulator = () => {
                                     {battleResult.xpGained > 0 && (
                                         <div className="bg-retro-green/20 rounded-lg p-4">
                                             <p className="font-pixel text-lg text-retro-green">✨ +{battleResult.xpGained} XP ✨</p>
+                                            <p className="font-pixel text-sm text-white mt-2">Now Level {battleResult.newLevel} ({battleResult.winnerExperience}/100 XP)</p>
                                             {battleResult.newLevel > 0 && (
                                                 <p className="font-pixel text-md text-retro-gold mt-2">🎉 LEVEL UP! Now Level {battleResult.newLevel}! 🎉</p>
                                             )}
@@ -423,6 +500,7 @@ const BattleSimulator = () => {
                                 {battleResult.xpGained > 0 && (
                                     <div className="text-center mb-6 p-3 bg-retro-green/20 rounded-lg">
                                         <p className="font-pixel text-sm text-retro-green">✨ {battleResult.winner} gained {battleResult.xpGained} XP! ✨</p>
+                                        <p className="font-pixel text-sm text-white mt-1">Now Level {battleResult.newLevel} ({battleResult.winnerExperience}/100 XP)</p>
                                         {battleResult.newLevel > 0 && (
                                             <p className="font-pixel text-sm text-retro-gold mt-1">🎉 LEVEL UP! Now Level {battleResult.newLevel}! 🎉</p>
                                         )}
@@ -481,6 +559,58 @@ const BattleSimulator = () => {
                 }
                 .animate-float-particle {
                     animation: float-particle 6s ease-in-out infinite;
+                }
+                .scale-up {
+                    transform: scale(1.06);
+                }
+                .charge-core {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 999px;
+                    background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(56,189,248,0.05) 60%, transparent 100%);
+                    box-shadow: 0 0 28px rgba(56,189,248,0.35);
+                    animation: charge-pulse 1.2s ease-in-out infinite;
+                }
+                @keyframes charge-pulse {
+                    0%, 100% { transform: scale(0.9); opacity: 0.6; }
+                    50% { transform: scale(1.1); opacity: 1; }
+                }
+                .energy-trail {
+                    position: absolute;
+                    width: 48%;
+                    height: 12px;
+                    border-radius: 999px;
+                    background: linear-gradient(90deg, rgba(99,102,241,0.95), rgba(96,165,250,0.35));
+                    box-shadow: 0 0 30px rgba(96,165,250,0.45);
+                    opacity: 0.9;
+                    animation: energy-surge 0.35s ease-out forwards;
+                }
+                .energy-from-left { left: 6%; }
+                .energy-from-right { right: 6%; }
+                @keyframes energy-surge {
+                    0% { transform: scaleX(0.2); opacity: 0; }
+                    50% { transform: scaleX(1.05); opacity: 1; }
+                    100% { transform: scaleX(1); opacity: 0.85; }
+                }
+                .impact-ring {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 999px;
+                    border: 2px solid rgba(255,255,255,0.25);
+                    box-shadow: 0 0 32px rgba(255,255,255,0.35);
+                    animation: impact-ring 0.45s ease-out;
+                }
+                @keyframes impact-ring {
+                    0% { transform: scale(0.5); opacity: 0.3; }
+                    40% { transform: scale(1.1); opacity: 1; }
+                    100% { transform: scale(1.4); opacity: 0; }
+                }
+                .impact-flash {
+                    border: 2px solid rgba(255,255,255,0.55);
+                    box-shadow: 0 0 28px rgba(255,255,255,0.45);
+                }
+                .shadow-glow {
+                    box-shadow: 0 0 22px rgba(34,255,71,0.45);
                 }
             `}</style>
         </div>

@@ -169,7 +169,7 @@ const AdminPokemonManager = () => {
         pokemon.pokedexNumber.toString().includes(searchTerm)
     );
 
-    if (loading && pokemons.length === 0) return <LoadingSpinner />;
+    if (loading && pokemons.length === 0) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative overflow-auto">
@@ -189,7 +189,7 @@ const AdminPokemonManager = () => {
                                 <div key={i} className="w-4 h-1 bg-pixel-red"></div>
                             ))}
                         </div>
-                        <p className="font-retro text-sm text-text-muted mt-2">Add, edit, or remove Pokemon from the Pokedex</p>
+                        <p className="font-retro text-sm mt-2">Add, edit, or remove Pokemon from the Pokedex</p>
                     </div>
                     <div className="flex gap-3">
                         <button

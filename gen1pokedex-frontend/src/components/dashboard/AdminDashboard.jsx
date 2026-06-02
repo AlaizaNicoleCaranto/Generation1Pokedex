@@ -40,7 +40,7 @@ const AdminDashboard = () => {
         soundService.playClickSound();
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner fullScreen />;
 
     return (
         <div className="min-h-screen p-6 relative">

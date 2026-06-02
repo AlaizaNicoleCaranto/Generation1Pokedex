@@ -72,13 +72,14 @@ const RegionMap = () => {
                 </div>
 
                 {/* Map Container - Custom pins with icons */}
-                <div className="relative h-[550px] bg-black/40 backdrop-blur-sm rounded-xl p-2 border border-white/20">
-                    <div className="absolute inset-0 rounded-xl overflow-hidden">
+                <div className="relative w-full aspect-[16/9] max-h-[720px] bg-black/50 backdrop-blur-lg rounded-3xl p-3 border border-white/20 shadow-2xl overflow-hidden">
+                    <div className="absolute inset-0 rounded-3xl overflow-hidden">
                         <img
                             src="https://archives.bulbagarden.net/media/upload/7/7d/PE_Kanto_Map.png"
                             alt="Kanto Map"
-                            className="w-full h-full object-contain opacity-40"
+                            className="w-full h-full object-cover opacity-80 brightness-110"
                         />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-transparent"></div>
                     </div>
 
                     {/* Custom Pins - Now with visible colors, icons, and tooltips */}
@@ -89,21 +90,19 @@ const RegionMap = () => {
                             className="absolute transform -translate-x-1/2 -translate-y-1/2 group z-20 cursor-pointer"
                             style={{ left: `${location.x}%`, top: `${location.y}%` }}
                         >
-                            {/* Custom pin with color, icon, and shadow */}
                             <div className="relative">
                                 <div
-                                    className="w-8 h-8 rounded-full shadow-lg flex items-center justify-center text-sm transition-all duration-300 group-hover:scale-125 group-hover:shadow-xl animate-pulse"
+                                    className="w-10 h-10 rounded-full shadow-2xl flex items-center justify-center text-lg transition-all duration-300 group-hover:scale-110"
                                     style={{
                                         backgroundColor: location.pinColor,
-                                        boxShadow: `0 0 0 2px white, 0 0 0 4px ${location.pinColor}`
+                                        boxShadow: `0 0 0 3px white, 0 0 0 6px ${location.pinColor}`
                                     }}
                                 >
-                                    <span className="text-base drop-shadow">{location.pinIcon}</span>
+                                    <span className="text-base drop-shadow-lg">{location.pinIcon}</span>
                                 </div>
-                                {/* Tooltip that appears on hover */}
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 px-3 py-1 rounded-lg pointer-events-none">
-                                    <span className="font-pixel text-[8px] text-white">{location.name}</span>
-                                    <span className="font-retro text-[6px] text-gray-400 ml-1">({location.habitat})</span>
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/90 px-3 py-1 rounded-full pointer-events-none ring-1 ring-white/10">
+                                    <span className="font-pixel text-[9px] text-white">{location.name}</span>
+                                    <span className="font-retro text-[7px] text-gray-300 ml-1">({location.habitat})</span>
                                 </div>
                             </div>
                         </button>

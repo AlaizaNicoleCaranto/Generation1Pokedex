@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import soundService from '../../services/soundService';
@@ -34,7 +34,9 @@ const Leaderboard = () => {
         soundService.playClickSound();
     };
 
-    if (loading) return <LoadingSpinner />;
+    const navigate = useNavigate();
+
+    if (loading) return <LoadingSpinner fullScreen />;
     if (error) return <div className="text-center text-pixel-red p-8">{error}</div>;
 
     const getMedal = (index) => {
@@ -86,35 +88,35 @@ const Leaderboard = () => {
                         </thead>
                         <tbody>
                             {users.map((user, index) => (
-                                <Link
+                                <tr
                                     key={user.username}
-                                    to={`/profile/${user.username}`}
-                                    onClick={() => handleRowClick(user.username)}
+                                    onClick={() => { handleRowClick(user.username); navigate(`/profile/${user.username}`); }}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') { handleRowClick(user.username); navigate(`/profile/${user.username}`); } }}
+                                    role="button"
+                                    tabIndex={0}
+                                    className={`border-b border-gray-800 hover:bg-retro-green/10 transition-all duration-300 cursor-pointer ${index === 0 ? 'bg-retro-gold/5' : ''}`}
                                 >
-                                    <tr className={`border-b border-gray-800 hover:bg-retro-green/10 transition-all duration-300 cursor-pointer ${index === 0 ? 'bg-retro-gold/5' : ''
-                                        }`}>
-                                        <td className="py-3 px-2 text-center">
-                                            <span className={`font-retro text-xl ${getMedalColor(index)}`}>
-                                                {getMedal(index)}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 px-2">
-                                            <span className="font-retro text-retro-gold hover:text-retro-green transition-colors">
-                                                {user.username}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 px-2 text-center">
-                                            <span className="font-retro text-retro-gold">{user.pokemonCount}</span>
-                                            <span className="font-pixel text-[8px] text-gray-500 ml-1">/151</span>
-                                        </td>
-                                        <td className="py-3 px-2 text-center">
-                                            <span className="font-retro text-retro-green">{user.completionPercentage?.toFixed(1)}%</span>
-                                        </td>
-                                        <td className="py-3 px-2 text-center">
-                                            <span className="font-retro text-retro-gold">{user.badges?.length || 0}</span>
-                                        </td>
-                                    </tr>
-                                </Link>
+                                    <td className="py-3 px-2 text-center">
+                                        <span className={`font-retro text-xl ${getMedalColor(index)}`}>
+                                            {getMedal(index)}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-2">
+                                        <span className="font-retro text-retro-gold hover:text-retro-green transition-colors">
+                                            {user.username}
+                                        </span>
+                                    </td>
+                                    <td className="py-3 px-2 text-center">
+                                        <span className="font-retro text-retro-gold">{user.pokemonCount}</span>
+                                        <span className="font-pixel text-[8px] text-gray-500 ml-1">/151</span>
+                                    </td>
+                                    <td className="py-3 px-2 text-center">
+                                        <span className="font-retro text-retro-green">{user.completionPercentage?.toFixed(1)}%</span>
+                                    </td>
+                                    <td className="py-3 px-2 text-center">
+                                        <span className="font-retro text-retro-gold">{user.badges?.length || 0}</span>
+                                    </td>
+                                </tr>
                             ))}
                         </tbody>
                     </table>
